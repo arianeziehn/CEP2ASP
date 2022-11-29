@@ -28,14 +28,14 @@ public class Q2_ANDPattern {
         }
 
         String file = parameters.get("input");
-        Integer velFilter = parameters.getInt("vel", 149);
-        Integer quaFilter = parameters.getInt("qua", 118);
+        Integer velFilter = parameters.getInt("vel", 175);
+        Integer quaFilter = parameters.getInt("qua", 250);
         Integer windowSize = parameters.getInt("wsize", 15);
         long throughput = parameters.getLong("tput", 100000);
 
         String outputPath;
         if (!parameters.has("output")) {
-            outputPath = file.replace(".csv", "_resultQ1_CEP.csv");
+            outputPath = file.replace(".csv", "_resultQ2_CEP.csv");
         } else {
             outputPath = parameters.get("output");
         }
