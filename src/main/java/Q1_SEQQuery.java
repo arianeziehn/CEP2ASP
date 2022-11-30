@@ -1,7 +1,5 @@
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.functions.FlatJoinFunction;
-import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.core.fs.FileSystem;
@@ -52,12 +50,7 @@ public class Q1_SEQQuery {
 
         DataStream<Tuple2<KeyedDataPointGeneral, Integer>> stream = input
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000))
-                .map(new MapFunction<KeyedDataPointGeneral, Tuple2<KeyedDataPointGeneral, Integer>>() {
-                    @Override
-                    public Tuple2<KeyedDataPointGeneral, Integer> map(KeyedDataPointGeneral data) throws Exception {
-                        return new Tuple2<KeyedDataPointGeneral, Integer>(data, 1);
-                    }
-                });
+                .map(new UDFs.MapKey());
 
         DataStream<Tuple2<KeyedDataPointGeneral, Integer>> velStream = stream.filter(t -> {
             return ((Double) t.f0.getValue()) > velFilter && (t.f0 instanceof VelocityEvent);
@@ -69,24 +62,14 @@ public class Q1_SEQQuery {
         });
 
         DataStream<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> result = velStream.join(quaStream)
-                .where(new KeySelector<Tuple2<KeyedDataPointGeneral, Integer>, Integer>() {
-                    @Override
-                    public Integer getKey(Tuple2<KeyedDataPointGeneral, Integer> data) throws Exception {
-                        return data.f1;
-                    }
-                })
-                .equalTo(new KeySelector<Tuple2<KeyedDataPointGeneral, Integer>, Integer>() {
-                    @Override
-                    public Integer getKey(Tuple2<KeyedDataPointGeneral, Integer> data) throws Exception {
-                        return data.f1;
-                    }
-                })
+                .where(new UDFs.getArtificalKey())
+                .equalTo(new UDFs.getArtificalKey())
                 .window(SlidingEventTimeWindows.of(Time.minutes(windowSize), Time.minutes(1)))
                 .apply(new FlatJoinFunction<Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
                     @Override
                     public void join(Tuple2<KeyedDataPointGeneral, Integer> d1, Tuple2<KeyedDataPointGeneral, Integer> d2, Collector<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
                         // we apply the temporal filter in the FlatJoinfunction, other system may not allow to modify the join output and require the filter after the join
-                        if (d1.f0.getTimeStampMs() <= d2.f0.getTimeStampMs()) {
+                        if (d1.f0.getTimeStampMs() < d2.f0.getTimeStampMs()) { // a sequence by definition requires <, to match FlinkCEP use <= here
                             double distance = UDFs.checkDistance(d1.f0, d2.f0);
                             if (distance < 10.0) collector.collect(new Tuple2<>(d1.f0, d2.f0));
                         }
