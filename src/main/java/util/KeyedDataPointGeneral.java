@@ -6,7 +6,6 @@
 
 package util;
 import java.util.Date;
-import java.util.Objects;
 
 /**
  * Presentation of a data point for CEP2ASP with additional geographial information and sensor identifier (key)
@@ -69,19 +68,6 @@ public class KeyedDataPointGeneral<Double> extends DataPoint<Double> {
 
     public void setKey(String key) {
         this.key = key;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof KeyedDataPointGeneral)) return false;
-        KeyedDataPointGeneral<?> that = (KeyedDataPointGeneral<?>) o;
-        return key.equals(that.key) && this.getTimeStampMs() == that.getTimeStampMs();
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(key, this.getTimeStampMs());
     }
 
     @Override

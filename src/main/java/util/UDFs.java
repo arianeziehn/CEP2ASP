@@ -9,6 +9,7 @@ import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks;
 import org.apache.flink.streaming.api.watermark.Watermark;
 import org.apache.flink.util.Collector;
 import javax.annotation.Nullable;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -122,6 +123,16 @@ public class UDFs {
             long timestamp = element.f0.getTimeStampMs();
             currentMaxTimestamp = Math.max(timestamp, currentMaxTimestamp);
             return timestamp;
+        }
+    }
+
+    public static class TimeComparator implements Comparator<Tuple2<KeyedDataPointGeneral, Integer>> {
+        @Override
+        public int compare(Tuple2<KeyedDataPointGeneral, Integer> t1, Tuple2<KeyedDataPointGeneral, Integer> t2) {
+            if (t1.f0.getTimeStampMs() < t2.f0.getTimeStampMs()) return -1;
+            if (t1.f0.getTimeStampMs() == t2.f0.getTimeStampMs()) return 0;
+            if (t1.f0.getTimeStampMs() > t2.f0.getTimeStampMs()) return 1;
+            return 0;
         }
     }
 }

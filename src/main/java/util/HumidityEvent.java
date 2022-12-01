@@ -1,6 +1,7 @@
 package util;
 
 import java.util.Date;
+import java.util.Objects;
 
 public class HumidityEvent extends KeyedDataPointGeneral{
 
@@ -27,6 +28,19 @@ public class HumidityEvent extends KeyedDataPointGeneral{
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof HumidityEvent)) return false;
+        HumidityEvent that = (HumidityEvent) o;
+        return this.getKey().equals(that.getKey()) && this.getTimeStampMs() == that.getTimeStampMs();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getKey(), this.getTimeStampMs(), this.type);
     }
 
     @Override
