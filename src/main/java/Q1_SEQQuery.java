@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Run with these parameters:
- * --input ./src/main/resources/QnV_large.csv
+ * --input ./src/main/resources/QnV.csv
  */
 
 public class Q1_SEQQuery {
@@ -52,14 +52,10 @@ public class Q1_SEQQuery {
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000))
                 .map(new UDFs.MapKey());
 
-        DataStream<Tuple2<KeyedDataPointGeneral, Integer>> velStream = stream.filter(t -> {
-            return ((Double) t.f0.getValue()) > velFilter && (t.f0 instanceof VelocityEvent);
-        });
+        DataStream<Tuple2<KeyedDataPointGeneral, Integer>> velStream = stream.filter(t -> ((Double) t.f0.getValue()) > velFilter && (t.f0 instanceof VelocityEvent));
 
 
-        DataStream<Tuple2<KeyedDataPointGeneral, Integer>> quaStream = stream.filter(t -> {
-            return ((Double) t.f0.getValue()) > quaFilter && t.f0 instanceof QuantityEvent;
-        });
+        DataStream<Tuple2<KeyedDataPointGeneral, Integer>> quaStream = stream.filter(t -> ((Double) t.f0.getValue()) > quaFilter && t.f0 instanceof QuantityEvent);
 
         DataStream<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> result = velStream.join(quaStream)
                 .where(new UDFs.getArtificalKey())
