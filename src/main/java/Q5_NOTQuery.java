@@ -1,7 +1,6 @@
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.functions.FlatJoinFunction;
 import org.apache.flink.api.java.functions.KeySelector;
-import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -17,7 +16,6 @@ import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 import util.*;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -75,26 +73,18 @@ public class Q5_NOTQuery {
                 .map(new UDFs.MapKey());
 
         DataStream<Tuple3<KeyedDataPointGeneral, Long, Integer>> quaStreamWithNextVelocityEvent = quaStream
-                .keyBy(1)
+                .keyBy(new UDFs.getArtificalKey())
                 .window(SlidingEventTimeWindows.of(Time.minutes(windowSize), Time.minutes(1)))
                 // we create a WindowUDF to order the window content and determine the next occurance of a velocity event
-                .apply(new WindowFunction<Tuple2<KeyedDataPointGeneral, Integer>, Tuple3<KeyedDataPointGeneral, Long, Integer>, Tuple, TimeWindow>() {
+                .apply(new WindowFunction<Tuple2<KeyedDataPointGeneral, Integer>, Tuple3<KeyedDataPointGeneral, Long, Integer>,Integer, TimeWindow>() {
                     @Override
-                    public void apply(Tuple tuple, TimeWindow timeWindow, Iterable<Tuple2<KeyedDataPointGeneral, Integer>> iterable, Collector<Tuple3<KeyedDataPointGeneral, Long, Integer>> collector) throws Exception {
+                    public void apply(Integer integer, TimeWindow timeWindow, Iterable<Tuple2<KeyedDataPointGeneral, Integer>> iterable, Collector<Tuple3<KeyedDataPointGeneral, Long, Integer>> collector) throws Exception {
                         List<Tuple2<KeyedDataPointGeneral, Integer>> list = new ArrayList<Tuple2<KeyedDataPointGeneral, Integer>>();
                         for (Tuple2<KeyedDataPointGeneral, Integer> data : iterable) {
                             list.add(data);
                         }
-                        // order events by time
-                        list = Ordering.from(new Comparator<Tuple2<KeyedDataPointGeneral, Integer>>() {
-                            @Override
-                            public int compare(Tuple2<KeyedDataPointGeneral, Integer> t1, Tuple2<KeyedDataPointGeneral, Integer> t2) {
-                                if (t1.f0.getTimeStampMs() < t2.f0.getTimeStampMs()) return -1;
-                                if (t1.f0.getTimeStampMs() == t2.f0.getTimeStampMs()) return 0;
-                                if (t1.f0.getTimeStampMs() > t2.f0.getTimeStampMs()) return 1;
-                                return 0;
-                            }
-                        }).sortedCopy(list);
+                        // sort events by time
+                        list = Ordering.from(new UDFs.TimeComparator()).sortedCopy(list);
                         //find for each quantity event the next velocity event
                         for (int i = 0; i < list.size(); i++) {
                             Tuple2<KeyedDataPointGeneral, Integer> data = list.get(i);
@@ -108,7 +98,7 @@ public class Q5_NOTQuery {
                                         break;
                                     }
                                 }
-                                // also valid if no velocity event follows
+                                // also valid if no velocity event occurs at all (i.e., no predicate on the event type)
                                 if (!followedBy) {
                                     long ts = data.f0.getTimeStampMs() + Time.minutes(windowSize).toMilliseconds();
                                     collector.collect(new Tuple3<KeyedDataPointGeneral, Long, Integer>(data.f0, ts, 1));
@@ -126,12 +116,7 @@ public class Q5_NOTQuery {
                         return data.f2;
                     }
                 })
-                .equalTo(new KeySelector<Tuple2<KeyedDataPointGeneral, Integer>, Integer>() {
-                    @Override
-                    public Integer getKey(Tuple2<KeyedDataPointGeneral, Integer> data) throws Exception {
-                        return data.f1;
-                    }
-                })
+                .equalTo(new UDFs.getArtificalKey())
                 .window(SlidingEventTimeWindows.of(Time.minutes(windowSize), Time.minutes(1)))
                 .apply(new FlatJoinFunction<Tuple3<KeyedDataPointGeneral, Long, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
                     @Override
@@ -149,6 +134,4 @@ public class Q5_NOTQuery {
         JobExecutionResult executionResult = env.execute("My FlinkASP Job");
         System.out.println("The job took " + executionResult.getNetRuntime(TimeUnit.MILLISECONDS) + "ms to execute");
     }
-
-
 }
