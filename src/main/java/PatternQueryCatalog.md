@@ -87,3 +87,20 @@ WHERE Q. value > quaFilter && PM2.value > pm2Filter &&
                 WHERE  V. value > velFilter && V.ts < PM2.ts && V.ts > Q.ts)
 WITHIN Minutes(windowSize)
 ```
+
+## Q6 Iteration Pattern (interevent condition (I1))
+#### Pattern
+``` 
+PATTERN V v1[n]
+WHERE v[i].value > v[i-1].value 
+WITHIN Minutes(windowSize) 
+```
+#### Query
+``` sql
+SELECT *
+FROM velocityStream V1 JOIN velocityStream V2 ON V1.ts < V2.ts
+                       JOIN ...
+                       JOIN velocityStream Vn ON Vn-1.ts < Vn.ts
+WHERE V2.value > V1.value && ... && Vn.value > Vn-1.value
+WITHIN Minutes(windowSize)
+```
