@@ -112,9 +112,7 @@ public class Q6_ITERQuery_I1 {
                     .apply(new FlatJoinFunction<Tuple3<ArrayList<KeyedDataPointGeneral>, Long, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple3<ArrayList<KeyedDataPointGeneral>, Long, Integer>>() {
                         @Override
                         public void join(Tuple3<ArrayList<KeyedDataPointGeneral>, Long, Integer> d1, Tuple2<KeyedDataPointGeneral, Integer> d2, Collector<Tuple3<ArrayList<KeyedDataPointGeneral>, Long, Integer>> collector) throws Exception {
-
-                            //if (d1.f0.get(d1.f0.size()-1).getTimeStampMs() < d2.f0.getTimeStampMs() && (Double) d1.f0.get(d1.f0.size()-1).getValue() < (Double) d2.f0.getValue()) {
-                            if ((d1.f0.get(d1.f0.size() - 1).getTimeStampMs() < d2.f0.getTimeStampMs() || (d1.f0.get(d1.f0.size() - 1).getTimeStampMs() == d2.f0.getTimeStampMs() && !d1.f0.get(d1.f0.size() - 1).getKey().equals(d2.f0.getKey()))) && (Double) d1.f0.get(d1.f0.size() - 1).getValue() < (Double) d2.f0.getValue()) {
+                            if (d1.f0.get(d1.f0.size() - 1).getTimeStampMs() < d2.f0.getTimeStampMs() && (Double) d1.f0.get(d1.f0.size() - 1).getValue() < (Double) d2.f0.getValue()) {
 
                                 ArrayList<KeyedDataPointGeneral> list = new ArrayList<KeyedDataPointGeneral>(d1.f0.size());
                                 list.addAll(0, d1.f0);
