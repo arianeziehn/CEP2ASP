@@ -14,6 +14,13 @@ We are currently cleaning up our code base and actively filling this repository 
 
 ![Mapping Overview](https://github.com/arianeziehn/CEP2ASP/blob/main/figures/mapping.pdf)
 
+<object data="https://github.com/arianeziehn/CEP2ASP/blob/main/figures/mapping.pdf" type="application/pdf" width="700px" height="700px">
+    <embed src="https://github.com/arianeziehn/CEP2ASP/blob/main/figures/mapping.pdf">
+        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="http://yoursite.com/the.pdf">Download PDF</a>.</p>
+    </embed>
+</object>
+
+
 ## How to apply the mapping to you pattern - An Example
 
 ## Next Steps
