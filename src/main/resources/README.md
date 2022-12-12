@@ -36,6 +36,6 @@ a fix frequency and collect data every three to five minutes.
 The data is publicly available on [𝑆𝑒𝑛𝑠𝑜𝑟.𝑐𝑜𝑚𝑚𝑢𝑛𝑖𝑡𝑦](https://sensor.community/de/)
 We provide two csv files, one for each of the sensors:
 
-- (1) 𝑆𝐷𝑆011 (luftdaten_11245)
-- (2) 𝐷𝐻𝑇22 (luftdaten_11246)
+- (1) 𝑆𝐷𝑆011 (luftdaten_11245, including headers)
+- (2) 𝐷𝐻𝑇22 (luftdaten_11246, including headers)
 

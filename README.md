@@ -12,7 +12,7 @@ We are currently cleaning up our code base and actively filling this repository 
 
 ## Mapping 
 
-![Mapping Overview](./main/figures/mapping.jpg)
+![Mapping Overview](mapping.jpg)
 
 ## How to apply the mapping to you pattern - An Example
 
