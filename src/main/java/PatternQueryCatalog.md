@@ -81,10 +81,10 @@ WITHIN Minutes(windowSize)
 ``` 
 SELECT *
 FROM quantityStream Q, pm2Stream PM2
-WHERE Q. value > quaFilter && PM2.value > pm2Filter && 
+WHERE Q.value > quaFilter && PM2.value > pm2Filter && 
     NOT EXISTS (SELECT *
                 FROM velocityStream V 
-                WHERE  V. value > velFilter && V.ts < PM2.ts && V.ts > Q.ts)
+                WHERE  V.value > velFilter && V.ts < PM2.ts && V.ts > Q.ts)
 WITHIN Minutes(windowSize)
 ```
 
@@ -102,5 +102,22 @@ FROM velocityStream V1 JOIN velocityStream V2 ON V1.ts < V2.ts
                        JOIN ...
                        JOIN velocityStream Vn ON Vn-1.ts < Vn.ts
 WHERE V2.value > V1.value && ... && Vn.value > Vn-1.value
+WITHIN Minutes(windowSize)
+```
+
+## Q7 Iteration Pattern (simple threshold filter (I2))
+#### Pattern
+``` 
+PATTERN V v1[n]
+WHERE v[i].value >  velFilter
+WITHIN Minutes(windowSize) 
+```
+#### Query
+``` sql
+SELECT *, AGG(attributeName)
+FROM velocityStream V 
+WHERE V.value > velFilter && 
+    (SELECT COUNT(*)
+     FROM velocityStream V ) = n 
 WITHIN Minutes(windowSize)
 ```
