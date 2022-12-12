@@ -63,6 +63,13 @@ public class UDFs {
         }
     }
 
+    public static class MapCount implements MapFunction<Tuple2<KeyedDataPointGeneral, Integer>, Tuple3<KeyedDataPointGeneral, Integer, Integer>> {
+        @Override
+        public Tuple3<KeyedDataPointGeneral, Integer, Integer> map(Tuple2<KeyedDataPointGeneral, Integer> dp) throws Exception {
+            return new Tuple3<KeyedDataPointGeneral, Integer, Integer>(dp.f0, dp.f1, 1);
+        }
+    }
+
     public static class GetResultTuple implements PatternFlatSelectFunction<KeyedDataPointGeneral, String> {
         @Override
         public void flatSelect(Map<String, List<KeyedDataPointGeneral>> map, Collector<String> collector) throws Exception {
