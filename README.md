@@ -12,7 +12,7 @@ We are currently cleaning up our code base and actively filling this repository 
 
 ## Mapping 
 
-![Mapping Overview](https://github.com/arianeziehn/CEP2ASP/blob/main/figures/mapping.pdf)
+![Mapping Overview](https://github.com/arianeziehn/CEP2ASP/blob/main/figures/mapping.jpg)
 
 <object data="https://github.com/arianeziehn/CEP2ASP/blob/main/figures/mapping.pdf" type="application/pdf" width="700px" height="700px">
     <embed src="https://github.com/arianeziehn/CEP2ASP/blob/main/figures/mapping.pdf">
