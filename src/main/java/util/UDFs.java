@@ -6,6 +6,7 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.cep.PatternFlatSelectFunction;
 import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks;
+import org.apache.flink.streaming.api.functions.timestamps.AscendingTimestampExtractor;
 import org.apache.flink.streaming.api.watermark.Watermark;
 import org.apache.flink.util.Collector;
 import javax.annotation.Nullable;
@@ -140,6 +141,32 @@ public class UDFs {
             if (t1.f0.getTimeStampMs() == t2.f0.getTimeStampMs()) return 0;
             if (t1.f0.getTimeStampMs() > t2.f0.getTimeStampMs()) return 1;
             return 0;
+        }
+    }
+
+    public static class KeySelectorNASDAQ implements KeySelector<KeyedDataPointNASDAQ, String> {
+        @Override
+        public String getKey(KeyedDataPointNASDAQ keyedDataPoint) throws Exception {
+            return keyedDataPoint.getKey();
+        }
+    }
+
+    public static class GetResultTupleNASDAQ implements PatternFlatSelectFunction<KeyedDataPointNASDAQ, String> {
+        @Override
+        public void flatSelect(Map<String, List<KeyedDataPointNASDAQ>> map, Collector<String> collector) throws Exception {
+
+
+            collector.collect(map.toString());
+
+        }
+    }
+
+    public static class ExtractTimestampNASDAQ extends AscendingTimestampExtractor<KeyedDataPointNASDAQ> {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public long extractAscendingTimestamp(KeyedDataPointNASDAQ element) {
+            return element.getTimeStampMs();
         }
     }
 }
