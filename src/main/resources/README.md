@@ -39,3 +39,4 @@ We provide two csv files, one for each of the sensors:
 - (1) 𝑆𝐷𝑆011 (luftdaten_11245, including headers)
 - (2) 𝐷𝐻𝑇22 (luftdaten_11246, including headers)
 
+Note: This folder only contains small samples, we uploaded the file QnV_large.csv here: https://www.file.io/HwE9/download/0PeYHMs05jDm

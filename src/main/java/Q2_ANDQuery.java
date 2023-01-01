@@ -60,8 +60,10 @@ public class Q2_ANDQuery {
         });
 
         DataStream<Tuple2<KeyedDataPointGeneral,KeyedDataPointGeneral>> result = velStream.join(quaStream)
-                .where(new UDFs.getArtificalKey())
-                .equalTo(new UDFs.getArtificalKey())
+                //.where(new UDFs.getOriginalKey()) // use for C2
+                //.equalTo(new UDFs.getOriginalKey()) // use for C2
+                .where(new UDFs.getArtificalKey()) // use for C1
+                .equalTo(new UDFs.getArtificalKey()) // use for C1
                 .window(SlidingEventTimeWindows.of(Time.minutes(windowSize), Time.minutes(1)))
                 .apply(new FlatJoinFunction<Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
                     @Override
@@ -76,6 +78,5 @@ public class Q2_ANDQuery {
 
         JobExecutionResult executionResult = env.execute("My FlinkASP Job");
         System.out.println("The job took " + executionResult.getNetRuntime(TimeUnit.MILLISECONDS) + "ms to execute");
-
     }
 }

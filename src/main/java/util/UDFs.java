@@ -57,6 +57,13 @@ public class UDFs {
         }
     }
 
+    public static class getOriginalKey implements KeySelector<Tuple2<KeyedDataPointGeneral, Integer>, String> {
+        @Override
+        public String getKey(Tuple2<KeyedDataPointGeneral, Integer> data) throws Exception {
+            return data.f0.getKey();
+        }
+    }
+
     public static class MapKey implements MapFunction<KeyedDataPointGeneral, Tuple2<KeyedDataPointGeneral, Integer>> {
         @Override
         public Tuple2<KeyedDataPointGeneral, Integer> map(KeyedDataPointGeneral dp) throws Exception {
