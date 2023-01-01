@@ -8,7 +8,7 @@ At the top of each script, you find a set of variables (i.e., paths) that need t
 
 | Query |    Baseline    | Parameter Evaluation | Scalability | 
 |-------|:--------------:|----------------------|-------------|
-| Q1    |     SEQ(2)     |                      |             |
+| Q1    |     SEQ(2)     | SEQ with parameters  |             |
 | Q2    | 𝐴𝑁𝐷(2;𝐶1)  |                      |             |
 |       | 𝐴𝑁𝐷(2;𝐶2)* |                      |             |
 | Q3    |    OR(2,D1)    |                      |             |
@@ -25,10 +25,11 @@ you may need to adjust the throughput's. A maximal maintainable throughput is th
 We exploratory identified the maximal maintainable throughput for each pattern and query using the ThroughputLogger in the util folder.
 We made sure that the defined throughput is equivalent to the derived average throughput (mean(result)) with a tolerance bound of 10%. 
 Furthermore, we made sure that the standard deviation of all 10 runs is smaller than 5% and includes the median. 
-
+You can use our R code below to verify your throughput results which are printed in the flink log files. 
 ```
 path <- '/to/your/logFiles.txt'
 result=c()
+tput = # set throuhput 
 
 for (i in 1:10){ # runs 
     data <- read.csv(paste(path, paste(i,'.txt', sep=""), sep=""), header = FALSE, sep ="$")
@@ -37,7 +38,7 @@ for (i in 1:10){ # runs
     result[i] <- sum(dataAGG2$x)
 }
 
-mean(result)
-median(result)
-sd(result)
+mean(result) >= tput*0.9 && mean(result) <= tput*1.1
+sd(result) <= tput*0.05
+mean(result) + sd(result) >= median(result) && mean(result) - sd(result) <= median(result)
 ``` 
