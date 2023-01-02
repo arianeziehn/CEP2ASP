@@ -28,7 +28,7 @@ public class Q3_ORQuery {
 
         String file = parameters.get("input");
         String outputPath;
-        Integer velFilter = parameters.getInt("vel", 250);
+        Integer velFilter = parameters.getInt("vel", 245);
         Integer quaFilter = parameters.getInt("qua", 280);
         Integer windowSize = parameters.getInt("wsize", 15);
         long throughput = parameters.getLong("tput", 100000);
@@ -49,7 +49,6 @@ public class Q3_ORQuery {
         DataStream<KeyedDataPointGeneral> quaStream = input.filter(t -> ((Double) t.getValue()) > quaFilter && (t instanceof QuantityEvent));
 
         DataStream<KeyedDataPointGeneral> velStream = input.filter(t -> ((Double) t.getValue()) > velFilter && t instanceof VelocityEvent);
-
 
         DataStream<KeyedDataPointGeneral> result = quaStream.union(velStream)
                 // window is not required for union, if applied a .apply() function is necessary

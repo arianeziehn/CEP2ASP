@@ -28,7 +28,7 @@ public class Q3_ORPattern {
 
         String file = parameters.get("input");
         String outputPath;
-        Integer velFilter = parameters.getInt("vel", 250);
+        Integer velFilter = parameters.getInt("vel", 245);
         Integer quaFilter = parameters.getInt("qua", 280);
         Integer windowSize = parameters.getInt("wsize", 15);
         long throughput = parameters.getLong("tput", 100000);

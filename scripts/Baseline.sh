@@ -74,7 +74,7 @@ do
   echo "Flink start"  >> $resultFile
   $startflink
   START=$(date +%s)
-  $flink run -c Q3_ORPattern $jar --input $data_path2 --output $output_path --tput 100000
+  $flink run -c Q3_ORPattern $jar --input $data_path2 --output $output_path --vel 245 --qua 315 --tput 100000
   END=$(date +%s)
   DIFF=$((END-START))
   echo "Q3_ORPattern run "$loop " : "$DIFF"s" >> $resultFile
@@ -86,7 +86,7 @@ do
   echo "Flink start"  >> $resultFile
   $startflink
   START=$(date +%s)
-  $flink run -c Q3_ORQuery $jar --input $data_path2 --output $output_path --tput 100000
+  $flink run -c Q3_ORQuery $jar --input $data_path2 --output $output_path --vel 245 --qua 315 --tput 100000
   END=$(date +%s)
   DIFF=$((END-START))
   echo "Q3_ORQuery run "$loop " : "$DIFF"s" >> $resultFile
@@ -149,7 +149,7 @@ do
   echo "Flink start"  >> $resultFile
   $startflink
   START=$(date +%s)
-  $flink run -c Q6_ITERPattern_I1 $jar --input $data_path2 --output $output_path --tput 100000 --times 3
+  $flink run -c Q6_ITERPattern_I1 $jar --input $data_path2 --output $output_path --tput 100000 --times 3 --vel 205
   END=$(date +%s)
   DIFF=$((END-START))
   echo "Q6_ITERPattern_I1 run "$loop " : "$DIFF"s" >> $resultFile
@@ -161,10 +161,10 @@ do
   echo "Flink start"  >> $resultFile
   $startflink
   START=$(date +%s)
-  $flink run -c Q6_ITERQuery_I1 $jar --input $data_path2 --output $output_path --tput 112500 --times 3
+  $flink run -c Q6_ITERQuery_I1T $jar --input $data_path2 --output $output_path --tput 115000 --times 3 --vel 205
   END=$(date +%s)
   DIFF=$((END-START))
-  echo "Q6_ITERQuery_I1 run "$loop " : "$DIFF"s" >> $resultFile
+  echo "Q6_ITERQuery_I1T run "$loop " : "$DIFF"s" >> $resultFile
   $stopflink
   echo "------------ Flink stopped ------------" >> $resultFile
 # ITER(3,I2)
