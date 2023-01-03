@@ -44,7 +44,6 @@ public class Q6_ITERPattern_I1 {
 
         DataStream<KeyedDataPointGeneral> input = env.addSource(new KeyedDataPointSourceFunction(file, throughput))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000));
-                //.keyBy(new UDFs.DataKeySelector()); // if this is select only tuples with same key match
 
         input.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, throughput));
 

@@ -6,18 +6,18 @@ At the top of each script, you find a set of variables (i.e., paths) that need t
 
 ## 
 
-| Query |    Baseline    | Parameter Evaluation | Scalability | 
-|-------|:--------------:|----------------------|-------------|
-| Q1    |     SEQ(2)     | SEQ with parameters  |             |
-| Q2    | 𝐴𝑁𝐷(2;𝐶1)  |                      |             |
-|       | 𝐴𝑁𝐷(2;𝐶2)* |                      |             |
-| Q3    |    OR(2,D1)    |                      |             |
-| Q4    |    OR(3,D2)    |                      |             |
-| Q5    |     NOT(3)     |                      |             |
-| Q6    |   ITER(3,I1)   |                      |             |
-| Q7    |   ITER(3,I2)   |                      |             |
+| Query |    Baseline    |     Parameter Evaluation      | Scalability | 
+|-------|:--------------:|:-----------------------------:|-------------|
+| Q1    |     SEQ(2)     | Selectivity and Window length |             |
+| Q2    | 𝐴𝑁𝐷(2;𝐶1)  |                               |             |
+|       | 𝐴𝑁𝐷(2;𝐶2)* |                               |             |
+| Q3    |    OR(2,D1)    |                               |             |
+| Q4    |    OR(3,D2)    |                               |             |
+| Q5    |     NOT(3)     |                               |             |
+| Q6    |   ITER(3,I1)   |      Pattern length (I1)      |             |
+| Q7    |   ITER(3,I2)   |      Pattern length (I2)      |             |
 
-Note: * For C2 uncomment ```.keyby()``` in Q2 files. 
+Note: * add ```.keyby()``` in both files. 
  
 ## Maximal Maintainable Throughput
 Furthermore, we use threshold filters and the maximal maintainable throughput evaluated in preliminary experiments. Depending on your machines, 
