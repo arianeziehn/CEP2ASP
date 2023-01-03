@@ -2,8 +2,7 @@ package util;
 
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.functions.KeySelector;
-import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.cep.PatternFlatSelectFunction;
 import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks;
 import org.apache.flink.streaming.api.functions.timestamps.AscendingTimestampExtractor;
@@ -174,6 +173,243 @@ public class UDFs {
         @Override
         public long extractAscendingTimestamp(KeyedDataPointNASDAQ element) {
             return element.getTimeStampMs();
+        }
+    }
+
+    // TimeStampAssigners
+    public static class ExtractTimestamp2KeyedDataPointGeneralLongInt implements AssignerWithPeriodicWatermarks<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>> {
+        private static final long serialVersionUID = 1L;
+        private long maxOutOfOrderness;
+
+        private long currentMaxTimestamp;
+
+        public ExtractTimestamp2KeyedDataPointGeneralLongInt(){
+            this.maxOutOfOrderness = 0;
+        }
+
+        public ExtractTimestamp2KeyedDataPointGeneralLongInt(long periodMs){
+            this.maxOutOfOrderness = (periodMs);
+        }
+
+        @Nullable
+        @Override
+        public Watermark getCurrentWatermark() {
+            return new Watermark(currentMaxTimestamp - maxOutOfOrderness);
+        }
+
+        @Override
+        public long extractTimestamp(Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> element, long l) {
+            long timestamp = element.f2;
+            currentMaxTimestamp = Math.max(timestamp, currentMaxTimestamp);
+            return timestamp;
+        }
+    }
+    public static class ExtractTimestamp3KeyedDataPointGeneralLongInt implements AssignerWithPeriodicWatermarks<Tuple5<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>> {
+        private static final long serialVersionUID = 1L;
+        private long maxOutOfOrderness;
+
+        private long currentMaxTimestamp;
+
+        public ExtractTimestamp3KeyedDataPointGeneralLongInt(){
+            this.maxOutOfOrderness = 0;
+        }
+
+        public ExtractTimestamp3KeyedDataPointGeneralLongInt(long periodMs){
+            this.maxOutOfOrderness = (periodMs);
+        }
+
+        @Nullable
+        @Override
+        public Watermark getCurrentWatermark() {
+            return new Watermark(currentMaxTimestamp - maxOutOfOrderness);
+        }
+
+        @Override
+        public long extractTimestamp(Tuple5<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> element, long l) {
+            long timestamp = element.f3;
+            currentMaxTimestamp = Math.max(timestamp, currentMaxTimestamp);
+            return timestamp;
+        }
+    }
+    public static class ExtractTimestamp4KeyedDataPointGeneralLongInt implements AssignerWithPeriodicWatermarks<Tuple6<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>> {
+        private static final long serialVersionUID = 1L;
+        private long maxOutOfOrderness;
+
+        private long currentMaxTimestamp;
+
+        public ExtractTimestamp4KeyedDataPointGeneralLongInt(){
+            this.maxOutOfOrderness = 0;
+        }
+
+        public ExtractTimestamp4KeyedDataPointGeneralLongInt(long periodMs){
+            this.maxOutOfOrderness = (periodMs);
+        }
+
+        @Nullable
+        @Override
+        public Watermark getCurrentWatermark() {
+            return new Watermark(currentMaxTimestamp - maxOutOfOrderness);
+        }
+
+        @Override
+        public long extractTimestamp(Tuple6<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> element, long l) {
+            long timestamp = element.f4;
+            currentMaxTimestamp = Math.max(timestamp, currentMaxTimestamp);
+            return timestamp;
+        }
+    }
+    public static class ExtractTimestamp5KeyedDataPointGeneralLongInt implements AssignerWithPeriodicWatermarks<Tuple7<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>> {
+        private static final long serialVersionUID = 1L;
+        private long maxOutOfOrderness;
+
+        private long currentMaxTimestamp;
+
+        public ExtractTimestamp5KeyedDataPointGeneralLongInt(){
+            this.maxOutOfOrderness = 0;
+        }
+
+        public ExtractTimestamp5KeyedDataPointGeneralLongInt(long periodMs){
+            this.maxOutOfOrderness = (periodMs);
+        }
+
+        @Nullable
+        @Override
+        public Watermark getCurrentWatermark() {
+            return new Watermark(currentMaxTimestamp - maxOutOfOrderness);
+        }
+
+        @Override
+        public long extractTimestamp(Tuple7<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> element, long l) {
+            long timestamp = element.f5;
+            currentMaxTimestamp = Math.max(timestamp, currentMaxTimestamp);
+            return timestamp;
+        }
+    }
+    public static class ExtractTimestamp6KeyedDataPointGeneralLongInt implements AssignerWithPeriodicWatermarks<Tuple8<KeyedDataPointGeneral,KeyedDataPointGeneral,KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>> {
+        private static final long serialVersionUID = 1L;
+        private long maxOutOfOrderness;
+
+        private long currentMaxTimestamp;
+
+        public ExtractTimestamp6KeyedDataPointGeneralLongInt(){
+            this.maxOutOfOrderness = 0;
+        }
+
+        public ExtractTimestamp6KeyedDataPointGeneralLongInt(long periodMs){
+            this.maxOutOfOrderness = (periodMs);
+        }
+
+        @Nullable
+        @Override
+        public Watermark getCurrentWatermark() {
+            return new Watermark(currentMaxTimestamp - maxOutOfOrderness);
+        }
+
+        @Override
+        public long extractTimestamp(Tuple8<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> element, long l) {
+            long timestamp = element.f6;
+            currentMaxTimestamp = Math.max(timestamp, currentMaxTimestamp);
+            return timestamp;
+        }
+    }
+    public static class ExtractTimestamp7KeyedDataPointGeneralLongInt implements AssignerWithPeriodicWatermarks<Tuple9<KeyedDataPointGeneral,KeyedDataPointGeneral,KeyedDataPointGeneral,KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>> {
+        private static final long serialVersionUID = 1L;
+        private long maxOutOfOrderness;
+
+        private long currentMaxTimestamp;
+
+        public ExtractTimestamp7KeyedDataPointGeneralLongInt(){
+            this.maxOutOfOrderness = 0;
+        }
+
+        public ExtractTimestamp7KeyedDataPointGeneralLongInt(long periodMs){
+            this.maxOutOfOrderness = (periodMs);
+        }
+
+        @Nullable
+        @Override
+        public Watermark getCurrentWatermark() {
+            return new Watermark(currentMaxTimestamp - maxOutOfOrderness);
+        }
+
+        @Override
+        public long extractTimestamp(Tuple9<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> element, long l) {
+            long timestamp = element.f7;
+            currentMaxTimestamp = Math.max(timestamp, currentMaxTimestamp);
+            return timestamp;
+        }
+    }
+    public static class ExtractTimestamp8KeyedDataPointGeneralLongInt implements AssignerWithPeriodicWatermarks<Tuple10<KeyedDataPointGeneral,KeyedDataPointGeneral,KeyedDataPointGeneral,KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>> {
+        private static final long serialVersionUID = 1L;
+        private long maxOutOfOrderness;
+
+        private long currentMaxTimestamp;
+
+        public ExtractTimestamp8KeyedDataPointGeneralLongInt(){
+            this.maxOutOfOrderness = 0;
+        }
+
+        public ExtractTimestamp8KeyedDataPointGeneralLongInt(long periodMs){
+            this.maxOutOfOrderness = (periodMs);
+        }
+
+        @Nullable
+        @Override
+        public Watermark getCurrentWatermark() {
+            return new Watermark(currentMaxTimestamp - maxOutOfOrderness);
+        }
+
+        @Override
+        public long extractTimestamp(Tuple10<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> element, long l) {
+            long timestamp = element.f8;
+            currentMaxTimestamp = Math.max(timestamp, currentMaxTimestamp);
+            return timestamp;
+        }
+    }
+
+    // KeySelectors
+
+    public static class getArtificalKeyT4 implements KeySelector<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>, Integer> {
+        @Override
+        public Integer getKey(Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> data) throws Exception {
+            return data.f3;
+        }
+    }
+    public static class getArtificalKeyT5 implements KeySelector<Tuple5<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>, Integer> {
+        @Override
+        public Integer getKey(Tuple5<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> data) throws Exception {
+            return data.f4;
+        }
+    }
+
+    public static class getArtificalKeyT6 implements KeySelector<Tuple6<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>, Integer> {
+        @Override
+        public Integer getKey(Tuple6<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> data) throws Exception {
+            return data.f5;
+        }
+    }
+    public static class getArtificalKeyT7 implements KeySelector<Tuple7<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>, Integer> {
+        @Override
+        public Integer getKey(Tuple7<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> data) throws Exception {
+            return data.f6;
+        }
+    }
+    public static class getArtificalKeyT8 implements KeySelector<Tuple8<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>, Integer> {
+        @Override
+        public Integer getKey(Tuple8<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> data) throws Exception {
+            return data.f7;
+        }
+    }
+    public static class getArtificalKeyT9 implements KeySelector<Tuple9<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>, Integer> {
+        @Override
+        public Integer getKey(Tuple9<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> data) throws Exception {
+            return data.f8;
+        }
+    }
+    public static class getArtificalKeyT10 implements KeySelector<Tuple10<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>, Integer> {
+        @Override
+        public Integer getKey(Tuple10<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> data) throws Exception {
+            return data.f9;
         }
     }
 }
