@@ -2,22 +2,22 @@
 
 This repository provides a query catalog of Complex Event Processing (CEP) patterns, and their respective Analytical Stream Processing (ASP) queries, translated using our theoretical operator mapping approach. 
 The provided queries are written using Apache Flinks Streaming API and its CEP library. 
-We are currently cleaning up our code base and actively filling this repository with content. 
 
 ## Repository Structure
-- Each class in the source folder presents a single pattern or query
-- You can run each pattern by using the provided parameters on top of the class
-- For each pattern, we provide a translated ASP query, e.g., Q1_SEQQuery is the translation of Q1_SEQPattern 
-- All queries and patterns are listed in the PatternQueryCatalog.md
-
+- **scripts_configs**: This folder contains a script for each experiment, a flink-conf.yaml with our settings, and a README.md with details about our evaluation, e.g., how we define maximal maintainable throughput, or a summary table that indicates with pattern was used in which experiment. 
+- **Source Root**: Each class in the source folder presents a single pattern or query, which can be run using the provided parameters on top of the class. For each pattern, we provide a translated ASP query, e.g., Q1_SEQQuery is the translation of Q1_SEQPattern. All queries and patterns are listed in the PatternQueryCatalog.md. 
+- **Resource Root**: Contains small samples of the original data for testing. The attached README describes the data further and provides the link to the data samples used for our experiments. 
 ## Mapping 
 
 ![Mapping Overview](mapping.jpg)
 
 ## Next Steps
 
-We are currently investigating a solution with connectors to various ASP engines, e.g., Apache Flink, Spark, and Beam, to automatically transform a declarative pattern into an ASP query.  
-Yet, the mapping needs to be applied manually. 
+We are currently investigating a solution to automatically transform patterns written in a declarative pattern specification language (PSL) into ASP queries.
+To this end, we are creating a parser (using ANTLR [3]) for a PSL based on SASE+ [1,2]. Given a pattern, ANLTR creates an AST, which we then can walk to directly create the logical operator tree of the corresponding ASP query.
+Herewith, we enable users to leverage our mapping but hide the complexity of our mapping and optimization decisions, such as selecting join types.
+Further steps include the creation of connectors to common ASP engines, e.g., Apache Flink, Spark, and Beam.
+Yet, the mapping needs to be applied manually.
 
 ## Mapping Directives: How to apply the mapping to your pattern - An Example
 
@@ -56,3 +56,5 @@ with ∗.
 [1] D. Gyllstrom, J. Agrawal, et al. On supporting kleene closure over event streams. In ICDE 2008, April, 2008. IEEE Computer Society, 2008
 
 [2] http://sase.cs.umass.edu//index.php?page=language
+
+[3] https://www.antlr.org/
