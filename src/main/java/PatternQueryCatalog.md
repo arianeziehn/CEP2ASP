@@ -114,10 +114,43 @@ WITHIN Minutes(windowSize)
 ```
 #### Query
 ``` sql
-SELECT *, AGG(attributeName)
+SELECT *
 FROM velocityStream V 
 WHERE V.value > velFilter && 
     (SELECT COUNT(*)
      FROM velocityStream V ) = n 
+WITHIN Minutes(windowSize)
+```
+## Q8 Sequence Pattern
+
+#### Pattern
+```
+PATTERN SEQ(V v1, Q q1)
+WHERE v1. value > velFilter && q1. value > quaFilter && v1.id = q1.id
+WITHIN Minutes(windowSize) 
+```
+#### Query
+```
+SELECT *
+FROM velocityStream V JOIN quantityStream Q ON V.ts < Q.ts
+WHERE V. value > velFilter && Q. value > quaFilter && Q.id = V.id
+WITHIN Minutes(windowSize)
+```
+
+
+## Q9 Sequence Pattern with pattern length 2 [to 6] 
+
+#### Pattern
+```
+PATTERN SEQ(Q q1, V v1, [PM2 pm2, PM10 pm10, Temp t1, Hum h1])
+WHERE q1.value > quaFilter && pm2.value > pm2Filter && pm10.value > pm10Filter && v1.value > velFilter && temp.value > tempFilter && hum.value > humFilter
+WITHIN Minutes(windowSize)
+```
+#### Query
+```
+SELECT *
+FROM quantityStream Q, velocityStream V, partMatter PM10, partMatter PM2, temperaturStream T, humidityStream H
+WHERE Q.value > quaFilter && PM2.value > pm2Filter && PM10.value > pm10Filter && V.value > velFilter && T.value > tempFilter && H.value > humFilter
+ && Q.ts > V.ts && V.ts > PM10.ts && PM2.ts > PM10.ts && PM10.ts > T.ts && T.ts > H.ts 
 WITHIN Minutes(windowSize)
 ```
