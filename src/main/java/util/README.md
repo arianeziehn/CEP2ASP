@@ -1,6 +1,6 @@
 # Util Folder
 
-In this folder, you can find basic and repetitively used classes for the patterns and queries. 
+In this folder, you can find basic and repetitively used classes for the patterns and queries, e.g., KeySelector or TimeStampAssigners. 
 
 ## Event types 
 
@@ -13,6 +13,9 @@ They inherit from KeyedDataPointGeneral (Base: DataPoint) and can be extended fu
 The **KeyedDataPointSourceFunction** is the general source that handles all in /src/main/resources
 provided files. If you change the format of the files make sure you write your own source
 function or adjust the provided Source accordingly. 
+
+The **KeyedDataPointParallelSourceFunction** is a special source for the single sensors files, i.e., R200070 and R200073. 
+We use this source for our scalability experiments as this data source is executed in parallel. 
 
 ## Metrics
 
