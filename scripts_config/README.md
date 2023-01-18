@@ -1,8 +1,7 @@
 # Scripts
 
-In this folder we provide the scripts for our evaluation section. 
-
-At the top of each script, you find a set of variables (i.e., paths) that need to be adjusted for your cluster. 
+In this folder, we provide details about our Flink configurations (flink-conf.yaml) and the scripts for our evaluation section. 
+At the top of each script, you find a set of variables (i.e., paths) that need to be adjusted for your cluster.
 
 ## 
 
@@ -17,7 +16,7 @@ At the top of each script, you find a set of variables (i.e., paths) that need t
 | Q6    |   ITER(3,I1)   |      Pattern length (I1)      |             |
 | Q7    |   ITER(3,I2)   |      Pattern length (I2)      |             |
 
-Note: * add ```.keyby()``` in both files. 
+Note: * add ```.keyby()``` in the corresponding files. 
  
 ## Maximal Maintainable Throughput
 Furthermore, we use threshold filters and the maximal maintainable throughput evaluated in preliminary experiments. Depending on your machines, 
