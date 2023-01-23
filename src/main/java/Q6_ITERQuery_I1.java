@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
  * We translate Q6_ITERPatterm_I1 here using ASP OP, i.e., joins and apply the inter-event condition, i.e., increasing values over time, in the join apply.
  * Note that here for the flexible handling of the times parameter (# of iterations) we use a ArrayList, not that this is not the best-permanent solution.
  * If you aim for high performance, each iteration need to be hand-coded and use the POJO class KeyedDataPointGeneral only (no array list).
+ * see Q6_ITERQuery_I1T and Q6_ITERQuery_I1T5-9.
  */
 
 public class Q6_ITERQuery_I1 {

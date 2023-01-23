@@ -36,7 +36,7 @@ do
   echo "Flink start"  >> $resultFile
   $startflink
   START=$(date +%s)
-  $flink run -c Q6_ITERQuery_I1T $jar --input $data_path2 --output $output_path --times 5 --tput 105000 --vel 179
+  $flink run -c Q6_ITERQuery_I1T5 $jar --input $data_path2 --output $output_path --times 5 --tput 105000 --vel 179
   END=$(date +%s)
   DIFF=$((END-START))
   echo "Q6_ITERQuery_I1T run "$loop "--pattern length 5 : "$DIFF"s" >> $resultFile
@@ -60,7 +60,7 @@ do
   echo "Flink start"  >> $resultFile
   $startflink
   START=$(date +%s)
-  $flink run -c Q6_ITERQuery_I1T $jar --input $data_path2 --output $output_path --times 7 --tput 105000 --sel 172
+  $flink run -c Q6_ITERQuery_I1T7 $jar --input $data_path2 --output $output_path --times 7 --tput 105000 --sel 172
   END=$(date +%s)
   DIFF=$((END-START))
   echo "Q6_ITERQuery_I1T run "$loop "--pattern length 7 : "$DIFF"s" >> $resultFile
@@ -85,7 +85,7 @@ do
   echo "Flink start"  >> $resultFile
   $startflink
   START=$(date +%s)
-  $flink run -c Q6_ITERQuery_I1T $jar --input $data_path2 --output $output_path --times 9 --tput 105000 --sel 168
+  $flink run -c Q6_ITERQuery_I1T9 $jar --input $data_path2 --output $output_path --times 9 --tput 105000 --sel 168
   END=$(date +%s)
   DIFF=$((END-START))
   echo "Q6_ITERQuery_I1T run "$loop "--pattern length 9 : "$DIFF"s" >> $resultFile
