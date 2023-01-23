@@ -7,8 +7,11 @@ import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.windowing.WindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
+import org.apache.flink.util.Collector;
 import util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -66,13 +69,25 @@ public class Q7_ITERQuery_I2 {
                 })
                 // .keyBy(new UDFs.DataKeySelectorTuple2Int()) // if this is select only tuples with same key are considered for a match
                 .window(SlidingEventTimeWindows.of(Time.minutes(windowSize), Time.minutes(1)))
+                /**
+                 * if your workload requires accurate information of the all sequences contained in a window, use .apply() sort your input iterable and
+                 * collect the different sequences as arraylist from the window (multiple outputs are allowed for UDF window functions)
+
+                .apply(new WindowFunction<Tuple3<KeyedDataPointGeneral, Integer, Integer>, Object, Integer, TimeWindow>() {
+                    @Override
+                    public void apply(Integer integer, TimeWindow timeWindow, Iterable<Tuple3<KeyedDataPointGeneral, Integer, Integer>> iterable, Collector<Object> collector) throws Exception {
+
+                    }
+                })
+                 * else: we sum the assigned count for all events assigned to the window
+                 */
                 .sum(2);
 
         // last, check if any aggregation fulfill the times condition
         aggStream.filter(new FilterFunction<Tuple3<KeyedDataPointGeneral, Integer, Integer>>() {
             @Override
             public boolean filter(Tuple3<KeyedDataPointGeneral, Integer, Integer> tuple2) throws Exception {
-                return tuple2.f2 >= iter; // here we are approximate, we report that we detected at least the number of specified events
+                return tuple2.f2 >= iter; // here we are approximate, we report that we detected at least the number of specified events, thus, if > iter we know that the window contains multiple sequences
             }
         }).writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 
