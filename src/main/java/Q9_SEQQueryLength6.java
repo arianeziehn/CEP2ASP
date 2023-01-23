@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  *  --inputQnV ./src/main/resources/QnV_R2000070.csv --inputPM ./src/main/resources/luftdaten_11245.csv --inputTH ./src/main/resources/luftdaten_11246.csv
  */
 
-public class Q9_SEQQueryLength_6 {
+public class Q9_SEQQueryLength6 {
     public static void main(String[] args) throws Exception {
 
         final ParameterTool parameters = ParameterTool.fromArgs(args);
