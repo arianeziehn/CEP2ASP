@@ -15,6 +15,8 @@ At the top of each script, you find a set of variables (i.e., paths) that need t
 | Q5    |     NOT(3)     |                               |             |
 | Q6    |   ITER(3,I1)   |      Pattern length (I1)      |             |
 | Q7    |   ITER(3,I2)   |      Pattern length (I2)      |             |
+| Q8    |                |                               |    SEQ(2)   |
+| Q9    |                |      Pattern length (S2)      |             |
 
 Note: * add ```.keyby()``` in the corresponding files. 
  
@@ -41,3 +43,9 @@ mean(result) >= tput*0.9 && mean(result) <= tput*1.1
 sd(result) <= tput*0.05
 mean(result) + sd(result) >= median(result) && mean(result) - sd(result) <= median(result)
 ``` 
+
+## Micro Benchmarks
+We use the command line tool Dool [1] to monitor CPU und memory utilization in our scalability experiment. 
+
+[1] https://github.com/scottchiefbaker/dool
+
