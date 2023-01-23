@@ -43,7 +43,7 @@ public class Q6_ITERQuery_I1T9 {
 
         // Local settings may require you to adjust configs in this way, we experienced it for longer iterations
         Configuration cfg = new Configuration();
-        int defaultLocalParallelism = Runtime.getRuntime().availableProcessors()-6;
+        int defaultLocalParallelism = Runtime.getRuntime().availableProcessors();
         cfg.setString("taskmanager.memory.network.fraction", "0.2");
         StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironment(defaultLocalParallelism, cfg);
         //StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

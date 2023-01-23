@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Run with these parameters
- * --input ./src/main/resources/QnV_large.csv
+ * --input ./src/main/resources/QnV.csv
  */
 
 public class Q6_ITERQuery_I1T7 {
