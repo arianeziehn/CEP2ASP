@@ -6,7 +6,7 @@ resultFile='/path/to/CollectEcho.txt'
 jar='/path/to/flink-cep-1.0-SNAPSHOT.jar'
 data_path1='/path/to/QnV_R2000070.csv'
 data_path2='/path/to/QnV_large.csv'
-# You find the file here: https://gofile.io/d/2434FN
+# You find the file here: https://gofile.io/d/pjglkV
 data_path3='/path/to/luftdaten_11245.csv'
 data_path4='/path/to/luftdaten_11246.csv'
 output_path='/path/to/CollectOutput.txt'
