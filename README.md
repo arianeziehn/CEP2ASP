@@ -3,6 +3,9 @@
 This repository provides a query catalog of Complex Event Processing (CEP) patterns, and their respective Analytical Stream Processing (ASP) queries, translated using our theoretical operator mapping approach. 
 The provided queries are written using Apache Flinks Streaming API and its CEP library. 
 
+**Warning** 
+We are currently observing the problem that data links are not consistently updated in the anonymous repository, the link is: https://gofile.io/d/pjglkV. 
+
 ## Repository Structure
 - **scripts_configs**: This folder contains a script for each experiment, a flink-conf.yaml with our settings, and a README.md with details about our evaluation, e.g., how we define maximal maintainable throughput, or a summary table that indicates with pattern was used in which experiment. 
 - **Source Root**: Each class in the source folder presents a single pattern or query, which can be run using the provided parameters on top of the class. For each pattern, we provide a translated ASP query, e.g., Q1_SEQQuery is the translation of Q1_SEQPattern. All queries and patterns are listed in the PatternQueryCatalog.md. 
