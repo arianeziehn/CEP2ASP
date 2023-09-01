@@ -5,7 +5,7 @@ The provided queries are written using Apache Flinks Streaming API and its CEP l
 
 ## Repository Structure
 - **scripts_configs**: This folder contains a script for each experiment, a flink-conf.yaml with our settings, and a README.md with details about our evaluation, e.g., how we define maximal maintainable throughput, or a summary table that indicates with pattern was used in which experiment. 
-- **Source Root**: Each class in the source folder presents a single pattern or query, which can be run using the provided parameters on top of the class. For each pattern, we provide a translated ASP query, e.g., Q1_SEQQuery is the translation of Q1_SEQPattern. All queries and patterns are listed in the PatternQueryCatalog.md. 
+- **Source Root**: Each class in the source folder presents a single pattern or query, which can be run using the provided parameters on top of the class. For each pattern, we provide a translated ASP query, e.g., QSEQ_E1 is the translation of PSEQ_E1. All queries and patterns are listed in the PatternQueryCatalog.md. 
 - **Resource Root**: Contains small samples of the original data for testing. The attached README describes the data further and provides the link to the data samples used for our experiments. 
 - Finally, we added a first draft of our formal proof for the correctness of our mapping (see **FormalProofOfInterWindowSemantics.pdf**)
 ## Mapping 

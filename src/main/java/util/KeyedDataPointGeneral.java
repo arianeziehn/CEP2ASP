@@ -17,11 +17,14 @@ public class KeyedDataPointGeneral<Double> extends DataPoint<Double> {
     private float longitude;
     private float latitude;
 
+    private long creationTime;
+
     public KeyedDataPointGeneral(){
         super();
         this.key = null;
         this.latitude = 0.0f;
         this.longitude = 0.0f;
+        this.creationTime = System.currentTimeMillis();
     }
 
     public KeyedDataPointGeneral(String key, long timeStampMs, Double value) {
@@ -29,6 +32,7 @@ public class KeyedDataPointGeneral<Double> extends DataPoint<Double> {
         this.key = key;
         this.latitude = 0.0f;
         this.longitude = 0.0f;
+        this.creationTime = System.currentTimeMillis();
     }
 
     public KeyedDataPointGeneral(String key, long timeStampMs, String type, Double value) {
@@ -36,6 +40,7 @@ public class KeyedDataPointGeneral<Double> extends DataPoint<Double> {
         this.key = key;
         this.latitude = 0.0f;
         this.longitude = 0.0f;
+        this.creationTime = System.currentTimeMillis();
     }
 
 
@@ -44,8 +49,16 @@ public class KeyedDataPointGeneral<Double> extends DataPoint<Double> {
         this.key = key;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.creationTime = System.currentTimeMillis();
     }
 
+    public KeyedDataPointGeneral(String key, float longitude, float latitude, long timeStampMs, Double value, long creationTime) {
+        super(timeStampMs, value);
+        this.key = key;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.creationTime = creationTime;
+    }
     public float getLongitude() {
         return longitude;
     }
@@ -68,6 +81,12 @@ public class KeyedDataPointGeneral<Double> extends DataPoint<Double> {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public long getCreationTime() {return creationTime;}
+
+    public void setCreationTime(long creationTime) {
+        this.creationTime = creationTime;
     }
 
     @Override

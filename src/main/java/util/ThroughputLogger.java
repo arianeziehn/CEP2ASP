@@ -45,9 +45,9 @@ public class ThroughputLogger<T> extends RichFlatMapFunction<T, Integer> {
                 long elementDiff = totalReceived - lastTotalReceived;
                 double ex = (1000 / (double) timeDiff);
                 String message = "Worker: $" + getRuntimeContext().getIndexOfThisSubtask() + "$: During the last $" + timeDiff + "$ ms, we received $" + elementDiff + "$ elements. That's $" + (elementDiff * ex) + "$ elements/second/core and $" + (elementDiff * ex * elementSize / 1024 / 1024) + "$ MB/sec/core. GB received $" + ((totalReceived * elementSize) / 1024 / 1024 / 1024) + "$ Query $" + query + "$";
-                LOG.info(message);
+                //LOG.info(message);
                 // in case of problems also try:
-                //Log.info(message);
+                Log.info(message);
                 lastLogTimeMs = now;
                 lastTotalReceived = totalReceived;
             }
