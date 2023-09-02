@@ -87,9 +87,6 @@ public class QNSEQ_E1_IntervalJoin {
                         for (int i = 0; i < list.size(); i++) {
                             KeyedDataPointGeneral data = list.get(i);
                             boolean followedBy = false;
-                            //System.out.println(timeWindow.getEnd());
-                            //System.out.println(data.getTimeStampMs());
-                            //System.out.println(timeWindow.getEnd() - data.getTimeStampMs() >= Time.minutes(100).toMilliseconds());
                             if (data instanceof QuantityEvent && (timeWindow.getEnd() - data.getTimeStampMs() >= Time.minutes(100).toMilliseconds())) {
                                 // we only need to check if the tuple is a relevant QuantityEvent
                                 for (int j = i + 1; j < list.size(); j++) { // then we check all successors
@@ -108,6 +105,8 @@ public class QNSEQ_E1_IntervalJoin {
                                     long ts = data.getTimeStampMs() + Time.minutes(100).toMilliseconds();
                                     collector.collect(new Tuple2<KeyedDataPointGeneral, Long>(data, ts));
                                 }
+                            } else if (timeWindow.getEnd() - data.getTimeStampMs() < Time.minutes(100).toMilliseconds()) {
+                              break;
                             }
                         }
                         //we need to assign the event timestamp to the new stream again to guarantee the time constraints of the sequence operator

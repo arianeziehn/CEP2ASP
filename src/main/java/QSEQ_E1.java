@@ -63,7 +63,7 @@ public class QSEQ_E1 {
                 .window(SlidingEventTimeWindows.of(Time.minutes(windowSize), Time.minutes(1)))
                 .apply(new FlatJoinFunction<KeyedDataPointGeneral, KeyedDataPointGeneral, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
                     // we use a HashSet to maintain duplicates
-                    final HashSet<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> set = new HashSet<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>(1000);
+                    final HashSet<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> set = new HashSet<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>(100);
 
                     @Override
                     public void join(KeyedDataPointGeneral d1, KeyedDataPointGeneral d2, Collector<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
@@ -73,7 +73,7 @@ public class QSEQ_E1 {
                             if (distance < 10.0) {
                                 Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral> result = new Tuple2<>(d1, d2);
                                 if (!set.contains(result)) {
-                                    if (set.size() == 1000) {
+                                    if (set.size() == 100) {
                                         set.removeAll(set);
                                         // to maintain the HashSet Size we flush after 1000 entries
                                     }
