@@ -86,31 +86,24 @@ public class UDFs {
         }
     }
 
-    public static class GetResultTuple4 implements PatternFlatSelectFunction<KeyedDataPointGeneral, Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> {
+    public static class GetResultTuple3 implements PatternFlatSelectFunction<KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> {
         @Override
-        public void flatSelect(Map<String, List<KeyedDataPointGeneral>> map, Collector<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> collector) throws Exception {
+        public void flatSelect(Map<String, List<KeyedDataPointGeneral>> map, Collector<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
             KeyedDataPointGeneral d1 = map.get("first").get(0);
             KeyedDataPointGeneral d2 = map.get("first").get(1);
             KeyedDataPointGeneral d3 = map.get("first").get(2);
-            long latency = System.currentTimeMillis() - d3.getCreationTime();
-            Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long> message = new Tuple4<>(d1, d2, d3, latency);
-            Log.info(message.toString());
-            collector.collect(message);
+             collector.collect(new Tuple3<>(d1, d2, d3));
         }
     }
 
-    public static class GetResultTuple2 implements PatternFlatSelectFunction<KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> {
+    public static class GetResultTuple2 implements PatternFlatSelectFunction<KeyedDataPointGeneral, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> {
         @Override
-        public void flatSelect(Map<String, List<KeyedDataPointGeneral>> map, Collector<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> collector) throws Exception {
+        public void flatSelect(Map<String, List<KeyedDataPointGeneral>> map, Collector<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
             KeyedDataPointGeneral d1 = map.get("first").get(0);
             KeyedDataPointGeneral d2 = map.get("next").get(0);
-            long latency = System.currentTimeMillis() - d2.getCreationTime();
-            Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long> message = new Tuple3<>(d1, d2, latency);
-            Log.info(message.toString());
-            collector.collect(new Tuple3<>(d1, d2, latency));
+            collector.collect(new Tuple2<>(d1, d2));
         }
     }
-
     public static class ExtractTimestampNOT implements AssignerWithPeriodicWatermarks<Tuple3<KeyedDataPointGeneral, Long, Integer>> {
         private static final long serialVersionUID = 1L;
         private long maxOutOfOrderness;

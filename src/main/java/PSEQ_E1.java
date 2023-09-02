@@ -1,4 +1,5 @@
 import org.apache.flink.api.common.JobExecutionResult;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.cep.CEP;
@@ -82,8 +83,9 @@ public class PSEQ_E1 {
 
         PatternStream<KeyedDataPointGeneral> patternStream = CEP.pattern(input, pattern);
 
-        DataStream<Tuple3<KeyedDataPointGeneral,KeyedDataPointGeneral, Long>> result = patternStream.flatSelect(new UDFs.GetResultTuple2());
+        DataStream<Tuple2<KeyedDataPointGeneral,KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple2());
 
+        result.flatMap(new LatencyLoggerT2());
         result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 
         JobExecutionResult executionResult = env.execute("My Flink Job");

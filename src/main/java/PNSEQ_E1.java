@@ -1,4 +1,5 @@
 import org.apache.flink.api.common.JobExecutionResult;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.cep.CEP;
@@ -80,8 +81,9 @@ public class PNSEQ_E1 {
 
         PatternStream<KeyedDataPointGeneral> patternStream = CEP.pattern(input, pattern);
 
-        DataStream<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> result = patternStream.flatSelect(new UDFs.GetResultTuple2());
-        //flatSelect contains the throughputLogger
+        DataStream<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple2());
+        //flatSelect contains the throughputLogger and is required to actual sink the pattern stream
+        result.flatMap(new LatencyLoggerT2());
         result //.print();
                 .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 

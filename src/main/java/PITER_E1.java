@@ -1,4 +1,5 @@
 import org.apache.flink.api.common.JobExecutionResult;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.cep.CEP;
@@ -65,8 +66,9 @@ public class PITER_E1 {
                 .within(Time.minutes(windowSize));
 
         PatternStream<KeyedDataPointGeneral> patternStream = CEP.pattern(inputVelocity, pattern);
-        DataStream<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> result = patternStream.flatSelect(new UDFs.GetResultTuple4());
+        DataStream<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple3());
 
+        result.flatMap(new LatencyLogger());
         result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 
         JobExecutionResult executionResult = env.execute("My Flink Job");
