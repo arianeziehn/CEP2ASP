@@ -51,13 +51,13 @@ public class QNSEQ_E1 {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
-        DataStream<KeyedDataPointGeneral> inputQuantity = env.addSource(new ArtificalSourceFunction("Quantity", tputPerStream, windowSize, runtimeMinutes, 0.2, 0.21, selectivity))
+        DataStream<KeyedDataPointGeneral> inputQuantity = env.addSource(new ArtificalSourceFunction("Quantity", tputPerStream, windowSize, runtimeMinutes, 0.34, 0.67, selectivity))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000));
 
-        DataStream<KeyedDataPointGeneral> inputPM10 = env.addSource(new ArtificalSourceFunction("PM10", tputPerStream, windowSize, runtimeMinutes, 0.6, 0.61, selectivity))
+        DataStream<KeyedDataPointGeneral> inputPM10 = env.addSource(new ArtificalSourceFunction("PM10", tputPerStream, windowSize, runtimeMinutes, 0.68, 1, selectivity))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000));
 
-        DataStream<KeyedDataPointGeneral> inputVelocity = env.addSource(new ArtificalSourceFunction("Velocity", tputPerStream, windowSize, runtimeMinutes, 0.2, 0.61, selectivity, "NEG"))
+        DataStream<KeyedDataPointGeneral> inputVelocity = env.addSource(new ArtificalSourceFunction("Velocity", tputPerStream, windowSize, runtimeMinutes, 0.34, 0.61, selectivity, "NEG"))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000));
 
         inputQuantity.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, tputPerStream));
@@ -74,7 +74,6 @@ public class QNSEQ_E1 {
                 .window(SlidingEventTimeWindows.of(Time.minutes(windowSize), Time.minutes(1)))
                 // we create a WindowUDF to order the window content and determine the next occurrence of a velocity event
                 .apply(new WindowFunction<KeyedDataPointGeneral, Tuple2<KeyedDataPointGeneral, Long>, String, TimeWindow>() {
-                    //final HashSet<KeyedDataPointGeneral> set = new HashSet<KeyedDataPointGeneral>(1000);
                     @Override
                     public void apply(String key, TimeWindow timeWindow, Iterable<KeyedDataPointGeneral> iterable, Collector<Tuple2<KeyedDataPointGeneral, Long>> collector) throws Exception {
                         List<KeyedDataPointGeneral> list = new ArrayList<KeyedDataPointGeneral>();
@@ -87,7 +86,7 @@ public class QNSEQ_E1 {
                         for (int i = 0; i < list.size(); i++) { // due to the slide by tuple we only check the beginning of the ordered list
                             KeyedDataPointGeneral data = list.get(i);
                             boolean followedBy = false;
-                            if (data instanceof QuantityEvent && (timeWindow.getEnd() - data.getTimeStampMs() >= Time.minutes(100).toMilliseconds())) {
+                            if (data instanceof QuantityEvent && (timeWindow.getEnd() - data.getTimeStampMs() >= (timeWindow.getEnd()-timeWindow.getStart()))) {
                                 // we only need to check if the tuple is a relevant QuantityEvent
                                 for (int j = i + 1; j < list.size(); j++) { // then we check all successors
                                     KeyedDataPointGeneral follow = list.get(j);
@@ -96,16 +95,15 @@ public class QNSEQ_E1 {
                                         collector.collect(new Tuple2<KeyedDataPointGeneral, Long>(data, follow.getTimeStampMs()));
                                         // for each quantity event only the next following velocity event is relevant
                                         followedBy = true;
-                                        // set.add(data);
                                         break;
                                     }
                                 }
                                 // also valid if no velocity event occurs at all (i.e., no predicate on the event type)
                                 if (!followedBy) {
-                                    long ts = data.getTimeStampMs() + Time.minutes(100).toMilliseconds();
+                                    long ts = data.getTimeStampMs() + (timeWindow.getEnd()-timeWindow.getStart());
                                     collector.collect(new Tuple2<KeyedDataPointGeneral, Long>(data, ts));
                                 }
-                            }else if (timeWindow.getEnd() - data.getTimeStampMs() < Time.minutes(100).toMilliseconds()) {
+                            }else if (timeWindow.getEnd() - data.getTimeStampMs() < (timeWindow.getEnd()-timeWindow.getStart())) {
                                 break;
                             }
                         }
@@ -123,14 +121,14 @@ public class QNSEQ_E1 {
                 .equalTo(KeyedDataPointGeneral::getKey)
                 .window(SlidingEventTimeWindows.of(Time.minutes(windowSize), Time.minutes(1)))
                 .apply(new FlatJoinFunction<Tuple2<KeyedDataPointGeneral, Long>, KeyedDataPointGeneral, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
-                    final HashSet<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> set = new HashSet<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>(100);
+                    final HashSet<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> set = new HashSet<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>(1000);
                     @Override
                     public void join(Tuple2<KeyedDataPointGeneral, Long> d1, KeyedDataPointGeneral d2, Collector<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
                         // we check if in between the events is no velocity event
                         if ((d1.f1 >= d2.getTimeStampMs() && d1.f0.getTimeStampMs() < d2.getTimeStampMs())) {
                             Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral> result = new Tuple2<>(d1.f0, d2);
                             if (!set.contains(result)) {
-                                if (set.size() == 100) {
+                                if (set.size() == 1000) {
                                     set.removeAll(set);
                                     // to maintain the HashSet Size we flush after 1000 entries
                                 }

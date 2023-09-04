@@ -93,12 +93,19 @@ public class ArtificalSourceFunction implements SourceFunction<KeyedDataPointGen
             }
 
             if(this.operatorType.equals("NEG")){
-                for(int j = startQ; j<= endQ; j++){
+                // invert selectitivy
+                // first all index of the window are added to the tempSet
+                for (int j = 1; j <= (this.windowsize); j++) {
                     tempSet.add(j);
                 }
+                // and then given the selectivity removed before the startQuantile
+                // these indexes then match the negation condition
+                for (int j = 1; j <= (this.windowsize * this.selectivity / 100); j++) {
+                    int randomNum = ThreadLocalRandom.current().nextInt(1, startQ);
+                    tempSet.remove(randomNum);
+                }
             }else {
-                for (int j = 1; j <= (windowsize * selectivity / 100); j++) {
-
+                for (int j = 1; j <= (this.windowsize * this.selectivity / 100); j++) {
                     int randomNum = ThreadLocalRandom.current().nextInt(startQ, endQ);
                     tempSet.add(randomNum);
                 }

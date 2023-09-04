@@ -51,13 +51,13 @@ public class QNSEQ_E1_IntervalJoin {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
-        DataStream<KeyedDataPointGeneral> inputQuantity = env.addSource(new ArtificalSourceFunction("Quantity", tputPerStream, windowSize, runtimeMinutes, 0.2, 0.21, selectivity))
+        DataStream<KeyedDataPointGeneral> inputQuantity = env.addSource(new ArtificalSourceFunction("Quantity", tputPerStream, windowSize, runtimeMinutes, 0.34, 0.67, selectivity))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000));
 
-        DataStream<KeyedDataPointGeneral> inputPM10 = env.addSource(new ArtificalSourceFunction("PM10", tputPerStream, windowSize, runtimeMinutes, 0.6, 0.61, selectivity))
+        DataStream<KeyedDataPointGeneral> inputPM10 = env.addSource(new ArtificalSourceFunction("PM10", tputPerStream, windowSize, runtimeMinutes, 0.68, 1, selectivity))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000));
 
-        DataStream<KeyedDataPointGeneral> inputVelocity = env.addSource(new ArtificalSourceFunction("Velocity", tputPerStream, windowSize, runtimeMinutes, 0.2, 0.61, selectivity, "NEG"))
+        DataStream<KeyedDataPointGeneral> inputVelocity = env.addSource(new ArtificalSourceFunction("Velocity", tputPerStream, windowSize, runtimeMinutes, 0.34, 0.61, selectivity, "NEG"))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000));
 
         inputQuantity.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, tputPerStream));
@@ -87,7 +87,7 @@ public class QNSEQ_E1_IntervalJoin {
                         for (int i = 0; i < list.size(); i++) {
                             KeyedDataPointGeneral data = list.get(i);
                             boolean followedBy = false;
-                            if (data instanceof QuantityEvent && (timeWindow.getEnd() - data.getTimeStampMs() >= Time.minutes(100).toMilliseconds())) {
+                            if (data instanceof QuantityEvent && (timeWindow.getEnd() - data.getTimeStampMs() >= (timeWindow.getEnd()-timeWindow.getStart()))) {
                                 // we only need to check if the tuple is a relevant QuantityEvent
                                 for (int j = i + 1; j < list.size(); j++) { // then we check all successors
                                     KeyedDataPointGeneral follow = list.get(j);
@@ -102,10 +102,10 @@ public class QNSEQ_E1_IntervalJoin {
                                 }
                                 // also valid if no velocity event occurs at all (i.e., no predicate on the event type)
                                 if (!followedBy) {
-                                    long ts = data.getTimeStampMs() + Time.minutes(100).toMilliseconds();
+                                    long ts = data.getTimeStampMs() + (timeWindow.getEnd()-timeWindow.getStart());
                                     collector.collect(new Tuple2<KeyedDataPointGeneral, Long>(data, ts));
                                 }
-                            } else if (timeWindow.getEnd() - data.getTimeStampMs() < Time.minutes(100).toMilliseconds()) {
+                            } else if (timeWindow.getEnd() - data.getTimeStampMs() < (timeWindow.getEnd()-timeWindow.getStart())) {
                               break;
                             }
                         }
