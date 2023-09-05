@@ -44,7 +44,9 @@ public class QITER_E1_IntervalJoin {
 
         // iter2
         DataStream<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> it2 = velStream.keyBy(KeyedDataPointGeneral::getKey)
-                .intervalJoin(velStream.keyBy(KeyedDataPointGeneral::getKey)).between(Time.seconds(1), Time.minutes(windowSize - 1)).process(new ProcessJoinFunction<KeyedDataPointGeneral, KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>>() {
+                .intervalJoin(velStream.keyBy(KeyedDataPointGeneral::getKey))
+                .between(Time.seconds(1), Time.seconds((windowSize*60)-1))
+                .process(new ProcessJoinFunction<KeyedDataPointGeneral, KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>>() {
             @Override
             public void processElement(KeyedDataPointGeneral d1, KeyedDataPointGeneral d2, ProcessJoinFunction<KeyedDataPointGeneral, KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>>.Context context, Collector<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> collector) throws Exception {
                 if (d1.getTimeStampMs() < d2.getTimeStampMs() && (Double) d1.getValue() < (Double) d2.getValue()) {
@@ -54,7 +56,10 @@ public class QITER_E1_IntervalJoin {
         }).assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp2KeyedDataPointGeneralLong(60000));
 
 
-        DataStream<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> it3 = it2.keyBy(new UDFs.getKeyT3()).intervalJoin(velStream.keyBy(KeyedDataPointGeneral::getKey)).between(Time.minutes(0), Time.minutes(windowSize - 1)).process(new ProcessJoinFunction<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>, KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
+        DataStream<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> it3 = it2.keyBy(new UDFs.getKeyT3())
+                .intervalJoin(velStream.keyBy(KeyedDataPointGeneral::getKey))
+                .between(Time.seconds(1), Time.seconds((windowSize*60)-1))
+                .process(new ProcessJoinFunction<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>, KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
             @Override
             public void processElement(Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long> d1, KeyedDataPointGeneral d2, ProcessJoinFunction<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>, KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>>.Context context, Collector<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
                 if (d1.f1.getTimeStampMs() < d2.getTimeStampMs() && (Double) d1.f1.getValue() < (Double) d2.getValue()) {

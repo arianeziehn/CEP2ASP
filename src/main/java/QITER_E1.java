@@ -61,7 +61,7 @@ public class QITER_E1 {
                 .window(SlidingEventTimeWindows.of(Time.minutes(windowSize), Time.minutes(1)))
                 .apply(new FlatJoinFunction<KeyedDataPointGeneral, KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>>() {
                     // we use a HashSet to maintain duplicates
-                    final HashSet<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> set = new HashSet<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>>(100);
+                    final HashSet<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> set = new HashSet<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>>(1000);
 
                     @Override
                     public void join(KeyedDataPointGeneral d1, KeyedDataPointGeneral d2, Collector<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> collector) throws Exception {
@@ -69,7 +69,7 @@ public class QITER_E1 {
                             Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long> result = new Tuple3<>(d1, d2, d1.getTimeStampMs());
                             if (!set.contains(result)) {
                                 collector.collect(result);
-                                if (set.size() == 100) {
+                                if (set.size() == 1000) {
                                     set.removeAll(set);
                                     // to maintain the HashSet Size we flush after 1000 entries
                                 }
@@ -86,14 +86,14 @@ public class QITER_E1 {
                 .window(SlidingEventTimeWindows.of(Time.minutes(windowSize), Time.minutes(1)))
                 .apply(new FlatJoinFunction<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>, KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
                     // we use a HashSet to maintain duplicates
-                    final HashSet<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> set = new HashSet<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>>(100);
+                    final HashSet<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> set = new HashSet<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>>(1000);
 
                     @Override
                     public void join(Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long> d1, KeyedDataPointGeneral d2, Collector<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
                         if (d1.f1.getTimeStampMs() < d2.getTimeStampMs() && (Double) d1.f1.getValue() < (Double) d2.getValue()) {
                             Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral> result = new Tuple3<>(d1.f0, d1.f1, d2);
                             if (!set.contains(result)) {
-                                if (set.size() == 100) {
+                                if (set.size() == 1000) {
                                     set.removeAll(set);
                                     // to maintain the HashSet Size we flush after 1000 entries
                                 }

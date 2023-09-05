@@ -82,12 +82,13 @@ public class ArtificalSourceFunction implements SourceFunction<KeyedDataPointGen
         boolean run = true;
         long tupleCounter = 0;
         long millisSinceEpoch = 0;
-        int iterationCounter = 1;
+        int iterationCounter = 0;
         while(run){
         // Create stream of KeyedDataPoints
             Random r = new Random();
             HashSet<Integer> tempSet = new HashSet<Integer>();
             if (this.operatorType.equals("ITER")){
+                iterationCounter++;
                 if(iterationCounter == 1){
                     this.quantileStart = 0.0;
                     this.quantileEnd = 0.33;
@@ -97,9 +98,8 @@ public class ArtificalSourceFunction implements SourceFunction<KeyedDataPointGen
                 } else if (iterationCounter == 3){
                     this.quantileStart = 0.5;
                     this.quantileEnd = 0.5;
-                    iterationCounter = 0;
                 }
-                iterationCounter++;
+
             }
             int startQ = (int) round((this.windowsize + 1) * this.quantileStart);
             int endQ = (int) round((this.windowsize + 1) * this.quantileEnd);
@@ -127,8 +127,9 @@ public class ArtificalSourceFunction implements SourceFunction<KeyedDataPointGen
                     tempSet.remove(randomNum);
                 }
             }else {
-                if(this.operatorType.equals("ITER") && iterationCounter == 0){
+                if(this.operatorType.equals("ITER") && iterationCounter == 3){
                     //empty temp
+                    iterationCounter = 0;
                 }else{
                 for (int j = 1; j <= (this.windowsize * this.selectivity / 100); j++) {
                     int randomNum = ThreadLocalRandom.current().nextInt(startQ, endQ);
