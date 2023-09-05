@@ -58,18 +58,17 @@ public class QSEQ_E1_IntervalJoin {
 
         DataStream<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> result = quaStream.keyBy(KeyedDataPointGeneral::getKey)
                 .intervalJoin(pm10Stream.keyBy(KeyedDataPointGeneral::getKey))
-                .between(Time.minutes(0), Time.minutes(windowSize - 1))
+                .between(Time.seconds(1), Time.minutes(windowSize - 1))
                 .process(new ProcessJoinFunction<KeyedDataPointGeneral, KeyedDataPointGeneral, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
                     @Override
                     public void processElement(KeyedDataPointGeneral d1, KeyedDataPointGeneral d2, ProcessJoinFunction<KeyedDataPointGeneral, KeyedDataPointGeneral, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>.Context context, Collector<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
-                        // we apply the temporal filter in the FlatJoinfunction, other system may not allow to modify the join output and require the filter after the join
-                        if (d1.getTimeStampMs() < d2.getTimeStampMs()) { // a sequence by definition requires <, to match FlinkCEP requires <= here
+
                             double distance = UDFs.checkDistance(d1, d2);
                             if (distance < 10.0) {
                                 Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral> result = new Tuple2<>(d1, d2);
                                 collector.collect(result);
                             }
-                        }
+
                     }
                 });
 

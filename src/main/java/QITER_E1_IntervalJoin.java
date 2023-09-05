@@ -35,14 +35,16 @@ public class QITER_E1_IntervalJoin {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
-        DataStream<KeyedDataPointGeneral> inputVelocity = env.addSource(new ArtificalSourceFunction("Velocity", throughput, windowSize, runtimeMinutes, selectivity, "ITER")).assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000));
+        DataStream<KeyedDataPointGeneral> inputVelocity = env.addSource(new ArtificalSourceFunction("Velocity", throughput, windowSize, runtimeMinutes, selectivity, "ITER"))
+                .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000));
 
         inputVelocity.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, throughput));
 
         DataStream<KeyedDataPointGeneral> velStream = inputVelocity.filter(t -> ((Double) t.getValue()) > velFilter);
 
         // iter2
-        DataStream<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> it2 = velStream.keyBy(KeyedDataPointGeneral::getKey).intervalJoin(velStream.keyBy(KeyedDataPointGeneral::getKey)).between(Time.minutes(0), Time.minutes(windowSize - 1)).process(new ProcessJoinFunction<KeyedDataPointGeneral, KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>>() {
+        DataStream<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> it2 = velStream.keyBy(KeyedDataPointGeneral::getKey)
+                .intervalJoin(velStream.keyBy(KeyedDataPointGeneral::getKey)).between(Time.seconds(1), Time.minutes(windowSize - 1)).process(new ProcessJoinFunction<KeyedDataPointGeneral, KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>>() {
             @Override
             public void processElement(KeyedDataPointGeneral d1, KeyedDataPointGeneral d2, ProcessJoinFunction<KeyedDataPointGeneral, KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>>.Context context, Collector<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> collector) throws Exception {
                 if (d1.getTimeStampMs() < d2.getTimeStampMs() && (Double) d1.getValue() < (Double) d2.getValue()) {

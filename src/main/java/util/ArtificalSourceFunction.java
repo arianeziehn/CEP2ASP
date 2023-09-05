@@ -82,15 +82,37 @@ public class ArtificalSourceFunction implements SourceFunction<KeyedDataPointGen
         boolean run = true;
         long tupleCounter = 0;
         long millisSinceEpoch = 0;
+        int iterationCounter = 1;
         while(run){
         // Create stream of KeyedDataPoints
             Random r = new Random();
             HashSet<Integer> tempSet = new HashSet<Integer>();
-            int startQ = (int) round((windowsize + 1) * quantileStart);
-            int endQ = (int) round((windowsize + 1) * quantileEnd);
+            if (this.operatorType.equals("ITER")){
+                if(iterationCounter == 1){
+                    this.quantileStart = 0.0;
+                    this.quantileEnd = 0.33;
+                }else if(iterationCounter == 2){
+                    this.quantileStart = 0.67;
+                    this.quantileEnd = 1.0;
+                } else if (iterationCounter == 3){
+                    this.quantileStart = 0.5;
+                    this.quantileEnd = 0.5;
+                    iterationCounter = 0;
+                }
+                iterationCounter++;
+            }
+            int startQ = (int) round((this.windowsize + 1) * this.quantileStart);
+            int endQ = (int) round((this.windowsize + 1) * this.quantileEnd);
             if (startQ <= 0.0){
                 startQ = 1;
             }
+            if (endQ > this.windowsize){
+                endQ = this.windowsize;
+            }
+            if (startQ == endQ){
+                endQ++;
+            }
+
 
             if(this.operatorType.equals("NEG")){
                 // invert selectitivy
@@ -105,11 +127,14 @@ public class ArtificalSourceFunction implements SourceFunction<KeyedDataPointGen
                     tempSet.remove(randomNum);
                 }
             }else {
+                if(this.operatorType.equals("ITER") && iterationCounter == 0){
+                    //empty temp
+                }else{
                 for (int j = 1; j <= (this.windowsize * this.selectivity / 100); j++) {
                     int randomNum = ThreadLocalRandom.current().nextInt(startQ, endQ);
                     tempSet.add(randomNum);
                 }
-            }
+            }}
 
             if (this.key == null) {
                 this.key = "1";
