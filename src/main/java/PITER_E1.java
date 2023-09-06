@@ -68,7 +68,7 @@ public class PITER_E1 {
         PatternStream<KeyedDataPointGeneral> patternStream = CEP.pattern(inputVelocity, pattern);
         DataStream<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple3());
 
-        result.flatMap(new LatencyLogger());
+        result.flatMap(new LatencyLoggerT3());
         result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 
         JobExecutionResult executionResult = env.execute("My Flink Job");
