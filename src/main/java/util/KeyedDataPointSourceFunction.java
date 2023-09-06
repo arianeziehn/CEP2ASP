@@ -20,6 +20,10 @@ public class KeyedDataPointSourceFunction implements SourceFunction<KeyedDataPoi
     private boolean manipulateIngestionRate = false;
     private long throughput;
 
+    private long startTime;
+
+    private int runtime = 20;
+
     public KeyedDataPointSourceFunction(String fileName) {
         this.file = fileName;
         this.key = null;
@@ -111,7 +115,8 @@ public class KeyedDataPointSourceFunction implements SourceFunction<KeyedDataPoi
     }
 
      public void run(SourceContext<KeyedDataPointGeneral> sourceContext) throws Exception {
-
+         this.startTime = System.currentTimeMillis();
+         boolean run = true;
 
         // 4 schemas
         // (1) QnV_large.csv
@@ -135,7 +140,7 @@ public class KeyedDataPointSourceFunction implements SourceFunction<KeyedDataPoi
 
             long start = System.currentTimeMillis();
 
-            while (scan.hasNext()) {
+            while (scan.hasNext() && run ) {
 
                 long millisSinceEpoch = 0;
                 String rawData = scan.nextLine();
@@ -292,8 +297,8 @@ public class KeyedDataPointSourceFunction implements SourceFunction<KeyedDataPoi
                     if ((1000-(now-start)) > 0) {
                         Thread.sleep(1000 - (now - start));
                     }
-                    else{
-                        //Log.info("Throughput is already lower than " + this.throughput + "per second.");
+                    if ((now-this.startTime) >= this.runtime * 60000L) {
+                        run = false;
                     }
                     tupleCounter = 0;
                     start = System.currentTimeMillis();
