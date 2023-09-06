@@ -1,5 +1,3 @@
-package Q_SubmissionSigmodVLDB;
-
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.functions.FlatJoinFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -8,11 +6,13 @@ import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.co.ProcessJoinFunction;
 import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 import util.*;
 
+import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  * --input ./src/main/resources/QnV.csv
  */
 
-public class Q1_SEQQuery {
+public class Q1_SEQQuery_IntervalJoin {
     public static void main(String[] args) throws Exception {
 
         final ParameterTool parameters = ParameterTool.fromArgs(args);
@@ -30,10 +30,10 @@ public class Q1_SEQQuery {
         }
 
         String file = parameters.get("input");
-        Integer velFilter = parameters.getInt("vel",175);
-        Integer quaFilter = parameters.getInt("qua",250);
-        Integer windowSize = parameters.getInt("wsize",15);
-        long throughput = parameters.getLong("tput",100000);
+        Integer velFilter = parameters.getInt("vel", 175);
+        Integer quaFilter = parameters.getInt("qua", 250);
+        Integer windowSize = parameters.getInt("wsize", 15);
+        long throughput = parameters.getLong("tput", 100000);
 
         String outputPath;
         if (!parameters.has("output")) {
@@ -55,25 +55,24 @@ public class Q1_SEQQuery {
 
         DataStream<Tuple2<KeyedDataPointGeneral, Integer>> velStream = stream.filter(t -> ((Double) t.f0.getValue()) > velFilter && (t.f0 instanceof VelocityEvent));
 
-
         DataStream<Tuple2<KeyedDataPointGeneral, Integer>> quaStream = stream.filter(t -> ((Double) t.f0.getValue()) > quaFilter && t.f0 instanceof QuantityEvent);
 
-        DataStream<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> result = velStream.join(quaStream)
-                .where(new UDFs.getArtificalKey())
-                .equalTo(new UDFs.getArtificalKey())
-                .window(SlidingEventTimeWindows.of(Time.minutes(windowSize), Time.minutes(1)))
-                .apply(new FlatJoinFunction<Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
+        DataStream<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> result = velStream.keyBy(new UDFs.getArtificalKey())
+                .intervalJoin(quaStream.keyBy(new UDFs.getArtificalKey()))
+                .between(Time.seconds(1), Time.seconds((windowSize * 60) - 1))
+                .process(new ProcessJoinFunction<Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
+
                     @Override
-                    public void join(Tuple2<KeyedDataPointGeneral, Integer> d1, Tuple2<KeyedDataPointGeneral, Integer> d2, Collector<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
-                        // we apply the temporal filter in the FlatJoinfunction, other system may not allow to modify the join output and require the filter after the join
-                        if (d1.f0.getTimeStampMs() < d2.f0.getTimeStampMs()) { // a sequence by definition requires <, to match FlinkCEP use <= here
-                            double distance = UDFs.checkDistance(d1.f0, d2.f0);
-                            if (distance < 10.0) collector.collect(new Tuple2<>(d1.f0, d2.f0));
+                    public void processElement(Tuple2<KeyedDataPointGeneral, Integer> d1, Tuple2<KeyedDataPointGeneral, Integer> d2, ProcessJoinFunction<Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>.Context context, Collector<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
+                        double distance = UDFs.checkDistance(d1.f0, d2.f0);
+                        if (distance < 10.0) {
+                            collector.collect(new Tuple2<>(d1.f0, d2.f0));
                         }
                     }
                 });
 
-        result //.print();
+        result.flatMap(new LatencyLoggerT2());
+        result//.print();
                 .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 
         JobExecutionResult executionResult = env.execute("My FlinkASP Job");
