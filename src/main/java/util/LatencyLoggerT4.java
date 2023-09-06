@@ -2,27 +2,27 @@ package util;
 
 import com.esotericsoftware.minlog.Log;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
-import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class logs the latency as average of all result tuples (Tuple2 of KeyedDataPoints) received within a second
+ * This class logs the latency as average of all result tuples (Tuple4 of KeyedDataPoints) received within a second
  */
-public class LatencyLoggerT2 extends RichFlatMapFunction<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>, Integer> {
+public class LatencyLoggerT4 extends RichFlatMapFunction<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>, Integer> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LatencyLoggerT2.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LatencyLoggerT4.class);
     private long totalLatencySum = 0;
     private long matchedPatternsCount = 0;
     private long lastLogTimeMs = -1;
 
-    public LatencyLoggerT2() {
+    public LatencyLoggerT4() {
     }
 
     @Override
-    public void flatMap(Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral> dp, Collector<Integer> collector) throws Exception {
-        KeyedDataPointGeneral dp_last = dp.f1;
+    public void flatMap(Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral> dp, Collector<Integer> collector) throws Exception {
+        KeyedDataPointGeneral dp_last = dp.f3;
         log_latency(dp_last);
     }
 

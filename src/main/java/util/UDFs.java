@@ -92,7 +92,7 @@ public class UDFs {
             KeyedDataPointGeneral d1 = map.get("first").get(0);
             KeyedDataPointGeneral d2 = map.get("first").get(1);
             KeyedDataPointGeneral d3 = map.get("first").get(2);
-             collector.collect(new Tuple3<>(d1, d2, d3));
+            collector.collect(new Tuple3<>(d1, d2, d3));
         }
     }
 
@@ -104,6 +104,53 @@ public class UDFs {
             collector.collect(new Tuple2<>(d1, d2));
         }
     }
+
+    public static class GetResultTuple3SEQ implements PatternFlatSelectFunction<KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> {
+        @Override
+        public void flatSelect(Map<String, List<KeyedDataPointGeneral>> map, Collector<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
+            KeyedDataPointGeneral d1 = map.get("first").get(0);
+            KeyedDataPointGeneral d2 = map.get("second").get(0);
+            KeyedDataPointGeneral d3 = map.get("third").get(0);
+            collector.collect(new Tuple3<>(d1, d2, d3));
+        }
+    }
+
+    public static class GetResultTuple4 implements PatternFlatSelectFunction<KeyedDataPointGeneral, Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> {
+        @Override
+        public void flatSelect(Map<String, List<KeyedDataPointGeneral>> map, Collector<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
+            KeyedDataPointGeneral d1 = map.get("first").get(0);
+            KeyedDataPointGeneral d2 = map.get("second").get(0);
+            KeyedDataPointGeneral d3 = map.get("third").get(0);
+            KeyedDataPointGeneral d4 = map.get("fourth").get(0);
+            collector.collect(new Tuple4<>(d1, d2, d3, d4));
+        }
+    }
+
+    public static class GetResultTuple5 implements PatternFlatSelectFunction<KeyedDataPointGeneral, Tuple5<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> {
+        @Override
+        public void flatSelect(Map<String, List<KeyedDataPointGeneral>> map, Collector<Tuple5<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
+            KeyedDataPointGeneral d1 = map.get("first").get(0);
+            KeyedDataPointGeneral d2 = map.get("second").get(0);
+            KeyedDataPointGeneral d3 = map.get("third").get(0);
+            KeyedDataPointGeneral d4 = map.get("fourth").get(0);
+            KeyedDataPointGeneral d5 = map.get("fifth").get(0);
+            collector.collect(new Tuple5<>(d1, d2, d3, d4, d5));
+        }
+    }
+
+    public static class GetResultTuple6 implements PatternFlatSelectFunction<KeyedDataPointGeneral, Tuple6<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> {
+        @Override
+        public void flatSelect(Map<String, List<KeyedDataPointGeneral>> map, Collector<Tuple6<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
+            KeyedDataPointGeneral d1 = map.get("first").get(0);
+            KeyedDataPointGeneral d2 = map.get("second").get(0);
+            KeyedDataPointGeneral d3 = map.get("third").get(0);
+            KeyedDataPointGeneral d4 = map.get("fourth").get(0);
+            KeyedDataPointGeneral d5 = map.get("fifth").get(0);
+            KeyedDataPointGeneral d6 = map.get("sixth").get(0);
+            collector.collect(new Tuple6<>(d1, d2, d3, d4, d5, d6));
+        }
+    }
+
     public static class ExtractTimestampNOT implements AssignerWithPeriodicWatermarks<Tuple3<KeyedDataPointGeneral, Long, Integer>> {
         private static final long serialVersionUID = 1L;
         private long maxOutOfOrderness;
