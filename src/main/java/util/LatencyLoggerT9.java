@@ -2,29 +2,29 @@ package util;
 
 import com.esotericsoftware.minlog.Log;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
-import org.apache.flink.api.java.tuple.Tuple6;
+import org.apache.flink.api.java.tuple.Tuple9;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class logs the latency as average of all result tuples (Tuple6 of KeyedDataPoints) received within a second
+ * This class logs the latency as average of all result tuples (Tuple9 of KeyedDataPoints) received within a second
  */
 
-public class LatencyLoggerT6 extends RichFlatMapFunction<Tuple6<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>, Integer> {
+public class LatencyLoggerT9 extends RichFlatMapFunction<Tuple9<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>, Integer> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LatencyLoggerT6.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LatencyLoggerT9.class);
     private long totalLatencySum = 0;
     private long matchedPatternsCount = 0;
 
     private long lastLogTimeMs = -1;
 
-    public LatencyLoggerT6() {
+    public LatencyLoggerT9() {
     }
 
     @Override
-    public void flatMap(Tuple6<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral> dp, Collector<Integer> collector) throws Exception {
-        KeyedDataPointGeneral dp_last = dp.f5;
+    public void flatMap(Tuple9<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral> dp, Collector<Integer> collector) throws Exception {
+        KeyedDataPointGeneral dp_last = dp.f8;
         log_latency(dp_last);
     }
 

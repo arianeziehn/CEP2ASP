@@ -68,7 +68,7 @@ public class QITER_E1_IntervalJoin {
             }
         });
 
-        it3.flatMap(new LatencyLogger());
+        it3.flatMap(new LatencyLoggerT3());
         it3//.print();
              .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 

@@ -99,9 +99,15 @@ public class UDFs {
     public static class GetResultTuple2 implements PatternFlatSelectFunction<KeyedDataPointGeneral, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> {
         @Override
         public void flatSelect(Map<String, List<KeyedDataPointGeneral>> map, Collector<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
-            KeyedDataPointGeneral d1 = map.get("first").get(0);
-            KeyedDataPointGeneral d2 = map.get("next").get(0);
-            collector.collect(new Tuple2<>(d1, d2));
+            if (map.get("first").size() == 1) {
+                KeyedDataPointGeneral d1 = map.get("first").get(0);
+                KeyedDataPointGeneral d2 = map.get("next").get(0);
+                collector.collect(new Tuple2<>(d1, d2));
+            } else if (map.get("first").size() == 2) { // get result of iteration pattern
+                KeyedDataPointGeneral d1 = map.get("first").get(0);
+                KeyedDataPointGeneral d2 = map.get("first").get(1);
+                collector.collect(new Tuple2<>(d1, d2));
+            }
         }
     }
 
@@ -141,13 +147,47 @@ public class UDFs {
     public static class GetResultTuple6 implements PatternFlatSelectFunction<KeyedDataPointGeneral, Tuple6<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> {
         @Override
         public void flatSelect(Map<String, List<KeyedDataPointGeneral>> map, Collector<Tuple6<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
-            KeyedDataPointGeneral d1 = map.get("first").get(0);
-            KeyedDataPointGeneral d2 = map.get("second").get(0);
-            KeyedDataPointGeneral d3 = map.get("third").get(0);
-            KeyedDataPointGeneral d4 = map.get("fourth").get(0);
-            KeyedDataPointGeneral d5 = map.get("fifth").get(0);
-            KeyedDataPointGeneral d6 = map.get("sixth").get(0);
-            collector.collect(new Tuple6<>(d1, d2, d3, d4, d5, d6));
+            if (map.get("first").size() == 1) { // get result of sequence pattern
+                KeyedDataPointGeneral d1 = map.get("first").get(0);
+                KeyedDataPointGeneral d2 = map.get("second").get(0);
+                KeyedDataPointGeneral d3 = map.get("third").get(0);
+                KeyedDataPointGeneral d4 = map.get("fourth").get(0);
+                KeyedDataPointGeneral d5 = map.get("fifth").get(0);
+                KeyedDataPointGeneral d6 = map.get("sixth").get(0);
+                collector.collect(new Tuple6<>(d1, d2, d3, d4, d5, d6));
+            } else if (map.get("first").size() == 6) { // get result of iteration pattern
+                KeyedDataPointGeneral d1 = map.get("first").get(0);
+                KeyedDataPointGeneral d2 = map.get("first").get(1);
+                KeyedDataPointGeneral d3 = map.get("first").get(2);
+                KeyedDataPointGeneral d4 = map.get("first").get(3);
+                KeyedDataPointGeneral d5 = map.get("first").get(4);
+                KeyedDataPointGeneral d6 = map.get("first").get(5);
+                collector.collect(new Tuple6<>(d1, d2, d3, d4, d5, d6));
+            }
+
+        }
+    }
+
+    public static class GetResultTuple9 implements PatternFlatSelectFunction<KeyedDataPointGeneral, Tuple9<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> {
+        @Override
+        public void flatSelect(Map<String, List<KeyedDataPointGeneral>> map, Collector<Tuple9<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
+            if (map.get("first").size() == 1) { // get result of sequence pattern
+                /**
+                 * TODO
+                 */
+            } else if (map.get("first").size() == 9) { // get result of iteration pattern
+                KeyedDataPointGeneral d1 = map.get("first").get(0);
+                KeyedDataPointGeneral d2 = map.get("first").get(1);
+                KeyedDataPointGeneral d3 = map.get("first").get(2);
+                KeyedDataPointGeneral d4 = map.get("first").get(3);
+                KeyedDataPointGeneral d5 = map.get("first").get(4);
+                KeyedDataPointGeneral d6 = map.get("first").get(5);
+                KeyedDataPointGeneral d7 = map.get("first").get(6);
+                KeyedDataPointGeneral d8 = map.get("first").get(7);
+                KeyedDataPointGeneral d9 = map.get("first").get(8);
+                collector.collect(new Tuple9<>(d1, d2, d3, d4, d5, d6, d7, d8, d9));
+            }
+
         }
     }
 
