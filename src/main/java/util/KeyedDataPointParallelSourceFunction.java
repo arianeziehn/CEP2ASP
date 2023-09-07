@@ -17,8 +17,6 @@ public class KeyedDataPointParallelSourceFunction extends RichParallelSourceFunc
     private String delimiter = ",";
     private boolean manipulateIngestionRate = false;
     private long throughput;
-    private long startTime;
-
     private int runtime = 20;
 
     public KeyedDataPointParallelSourceFunction(String fileName) {
@@ -103,7 +101,7 @@ public class KeyedDataPointParallelSourceFunction extends RichParallelSourceFunc
     }
 
     public void run(SourceContext<KeyedDataPointGeneral> sourceContext) throws Exception {
-        this.startTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
         boolean run = true;
 
         // 4 schemas
@@ -140,7 +138,7 @@ public class KeyedDataPointParallelSourceFunction extends RichParallelSourceFunc
                     id = data[0].trim();
                 else id = this.key;
 
-            if (data.length == 4) {
+                if (data.length == 4) {
                     // parse QnV
                     // time
                     if (this.sourceLoops == 1 || loopCount == 1) {
@@ -162,7 +160,7 @@ public class KeyedDataPointParallelSourceFunction extends RichParallelSourceFunc
                     }
 
                     int maxPara = this.getRuntimeContext().getNumberOfParallelSubtasks();
-                    if(this.sensors >= maxPara) {
+                    if (this.sensors >= maxPara) {
                         for (int i = 0; i < (this.sensors / maxPara); i++) {
 
                             KeyedDataPointGeneral velEvent = new VelocityEvent(Integer.toString((this.getRuntimeContext().getIndexOfThisSubtask() + (maxPara * i))),
@@ -177,7 +175,7 @@ public class KeyedDataPointParallelSourceFunction extends RichParallelSourceFunc
                             sourceContext.collect(quaEvent);
                             tupleCounter++;
                         }
-                    }else{
+                    } else {
                         System.out.println("TODO");
                     }
 
@@ -195,7 +193,8 @@ public class KeyedDataPointParallelSourceFunction extends RichParallelSourceFunc
                     long now = System.currentTimeMillis();
                     if ((1000 - (now - start)) > 0) {
                         Thread.sleep(1000 - (now - start));
-                    }if ((now-this.startTime) >= this.runtime * 60000L) {
+                    }
+                    if ((now - startTime) >= this.runtime * 60000L) {
                         run = false;
                     }
                     tupleCounter = 0;

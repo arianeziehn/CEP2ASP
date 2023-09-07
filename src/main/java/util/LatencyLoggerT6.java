@@ -2,33 +2,31 @@ package util;
 
 import com.esotericsoftware.minlog.Log;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
-import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple6;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * This class logs the latency as average of all result tuples (Tuple2 of KeyedDataPoints) received within a second
- */
-public class LatencyLoggerT2 extends RichFlatMapFunction<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>, Integer> {
+public class LatencyLoggerT6 extends RichFlatMapFunction<Tuple6<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>, Integer> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LatencyLoggerT2.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LatencyLoggerT6.class);
     private long totalLatencySum = 0;
     private long matchedPatternsCount = 0;
+
     private long lastLogTimeMs = -1;
 
-    public LatencyLoggerT2() {
+    public LatencyLoggerT6() {
     }
 
     @Override
-    public void flatMap(Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral> dp, Collector<Integer> collector) throws Exception {
-        KeyedDataPointGeneral dp_last = dp.f1;
+    public void flatMap(Tuple6<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral> dp, Collector<Integer> collector) throws Exception {
+        KeyedDataPointGeneral dp_last = dp.f5;
         log_latency(dp_last);
     }
 
     public void log_latency(KeyedDataPointGeneral last) {
         long currentTime = System.currentTimeMillis();
-        long detectionLatency = currentTime - last.getCreationTime();
+        long detectionLatency = currentTime - last.getCreationTime(); //named ingestion-time in report
 
         this.totalLatencySum += detectionLatency;
         this.matchedPatternsCount += 1;

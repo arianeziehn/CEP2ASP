@@ -19,9 +19,6 @@ public class KeyedDataPointSourceFunction implements SourceFunction<KeyedDataPoi
     private String delimiter;
     private boolean manipulateIngestionRate = false;
     private long throughput;
-
-    private long startTime;
-
     private int runtime = 20;
 
     public KeyedDataPointSourceFunction(String fileName) {
@@ -40,8 +37,7 @@ public class KeyedDataPointSourceFunction implements SourceFunction<KeyedDataPoi
         this.throughput = throughput;
         if (throughput == 0) {
             this.manipulateIngestionRate = false;
-        }
-        else{
+        } else {
             this.manipulateIngestionRate = true;
         }
 
@@ -63,14 +59,13 @@ public class KeyedDataPointSourceFunction implements SourceFunction<KeyedDataPoi
         this.throughput = throughput;
         if (throughput == 0) {
             this.manipulateIngestionRate = false;
-        }
-        else{
+        } else {
             this.manipulateIngestionRate = true;
         }
 
     }
 
-     public KeyedDataPointSourceFunction(String fileName, Integer loops, String delimiter) {
+    public KeyedDataPointSourceFunction(String fileName, Integer loops, String delimiter) {
         this.file = fileName;
         this.key = null;
         this.sourceLoops = loops;
@@ -86,8 +81,7 @@ public class KeyedDataPointSourceFunction implements SourceFunction<KeyedDataPoi
         this.throughput = throughput;
         if (throughput == 0) {
             this.manipulateIngestionRate = false;
-        }
-        else{
+        } else {
             this.manipulateIngestionRate = true;
         }
 
@@ -108,15 +102,14 @@ public class KeyedDataPointSourceFunction implements SourceFunction<KeyedDataPoi
         this.throughput = throughput;
         if (throughput == 0) {
             this.manipulateIngestionRate = false;
-        }
-        else{
+        } else {
             this.manipulateIngestionRate = true;
         }
     }
 
-     public void run(SourceContext<KeyedDataPointGeneral> sourceContext) throws Exception {
-         this.startTime = System.currentTimeMillis();
-         boolean run = true;
+    public void run(SourceContext<KeyedDataPointGeneral> sourceContext) throws Exception {
+        long startTime = System.currentTimeMillis();
+        boolean run = true;
 
         // 4 schemas
         // (1) QnV_large.csv
@@ -140,7 +133,7 @@ public class KeyedDataPointSourceFunction implements SourceFunction<KeyedDataPoi
 
             long start = System.currentTimeMillis();
 
-            while (scan.hasNext() && run ) {
+            while (scan.hasNext() && run) {
 
                 long millisSinceEpoch = 0;
                 String rawData = scan.nextLine();
@@ -148,7 +141,8 @@ public class KeyedDataPointSourceFunction implements SourceFunction<KeyedDataPoi
 
                 // key, works for all three data files
                 String id;
-                if (this.key == null || ((this.key.equals("1") && this.sourceLoops == 1) && !data[0].contains("_id"))) id = data[0].trim();
+                if (this.key == null || ((this.key.equals("1") && this.sourceLoops == 1) && !data[0].contains("_id")))
+                    id = data[0].trim();
                 else id = this.key;
 
                 if (data.length == 6) {
@@ -182,11 +176,11 @@ public class KeyedDataPointSourceFunction implements SourceFunction<KeyedDataPoi
                 } else if (data.length == 4) {
                     // parse QnV
                     // time
-                    if (this.sourceLoops == 1 || loopCount == 1 ) {
+                    if (this.sourceLoops == 1 || loopCount == 1) {
                         millisSinceEpoch = Long.parseLong(data[1]);
                     } else {
-                         this.currentTime += 60000;
-                         millisSinceEpoch = this.currentTime;
+                        this.currentTime += 60000;
+                        millisSinceEpoch = this.currentTime;
                     }
 
                     double velocity = Double.parseDouble(data[2].trim());
@@ -195,13 +189,13 @@ public class KeyedDataPointSourceFunction implements SourceFunction<KeyedDataPoi
                     float longitude = 8.615298750147367f;
                     float latitude = 49.84660732605085f;
 
-                    if(id.equals("R2000073")){
+                    if (id.equals("R2000073")) {
                         longitude = 8.615174355568845f;
                         latitude = 49.84650797558072f;
                     }
 
                     KeyedDataPointGeneral velEvent = new VelocityEvent(id,
-                            millisSinceEpoch, velocity,longitude,latitude);
+                            millisSinceEpoch, velocity, longitude, latitude);
 
                     sourceContext.collect(velEvent);
                     tupleCounter++;
@@ -222,14 +216,14 @@ public class KeyedDataPointSourceFunction implements SourceFunction<KeyedDataPoi
 
                         //System.out.println("Before formatting: " + data[5]);
                         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                        LocalDateTime timestampDT = LocalDateTime.parse(data[5].trim().replace("T"," "), dtf);
+                        LocalDateTime timestampDT = LocalDateTime.parse(data[5].trim().replace("T", " "), dtf);
                         //System.out.println("after formatting: " + timestampDT);
                         millisSinceEpoch = timestampDT.atZone(ZoneId.systemDefault())
-                            .toInstant().toEpochMilli();
+                                .toInstant().toEpochMilli();
 
-                       // System.out.println(new Date(millisSinceEpoch));
+                        // System.out.println(new Date(millisSinceEpoch));
                     } else {
-                        this.currentTime += (Math.floor(Math.random() * (6 - 3) + 3))*60000;
+                        this.currentTime += (Math.floor(Math.random() * (6 - 3) + 3)) * 60000;
                         millisSinceEpoch = this.currentTime;
                     }
 
@@ -258,12 +252,12 @@ public class KeyedDataPointSourceFunction implements SourceFunction<KeyedDataPoi
 
                         //System.out.println("Before formatting: " + data[5]);
                         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                        LocalDateTime timestampDT = LocalDateTime.parse(data[5].trim().replace("T"," "), dtf);
+                        LocalDateTime timestampDT = LocalDateTime.parse(data[5].trim().replace("T", " "), dtf);
                         //System.out.println("after formatting: " + timestampDT);
                         millisSinceEpoch = timestampDT.atZone(ZoneId.systemDefault())
                                 .toInstant().toEpochMilli();
                     } else {
-                        this.currentTime += (Math.floor(Math.random() * (6 - 3) + 3))*60000;
+                        this.currentTime += (Math.floor(Math.random() * (6 - 3) + 3)) * 60000;
                         millisSinceEpoch = this.currentTime;
                     }
 
@@ -283,7 +277,7 @@ public class KeyedDataPointSourceFunction implements SourceFunction<KeyedDataPoi
                     tupleCounter++;
 
                 } else {
-                    System.out.println(rawData +": Unkown Datatype of length " + data.length);
+                    System.out.println(rawData + ": Unkown Datatype of length " + data.length);
                 }
 
                 if (!scan.hasNext() && loopCount < this.sourceLoops) {
@@ -292,12 +286,12 @@ public class KeyedDataPointSourceFunction implements SourceFunction<KeyedDataPoi
                     this.currentTime = millisSinceEpoch;
                 }
 
-                if(tupleCounter >= throughput && manipulateIngestionRate){
+                if (tupleCounter >= throughput && manipulateIngestionRate) {
                     long now = System.currentTimeMillis();
-                    if ((1000-(now-start)) > 0) {
+                    if ((1000 - (now - start)) > 0) {
                         Thread.sleep(1000 - (now - start));
                     }
-                    if ((now-this.startTime) >= this.runtime * 60000L) {
+                    if ((now - startTime) >= this.runtime * 60000L) {
                         run = false;
                     }
                     tupleCounter = 0;
@@ -306,9 +300,9 @@ public class KeyedDataPointSourceFunction implements SourceFunction<KeyedDataPoi
             }
             scan.close();
 
-        }catch (NumberFormatException nfe){
+        } catch (NumberFormatException nfe) {
             nfe.printStackTrace();
-        }catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
