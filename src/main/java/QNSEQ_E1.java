@@ -90,7 +90,7 @@ public class QNSEQ_E1 {
                                 // we only need to check if the tuple is a relevant QuantityEvent
                                 for (int j = i + 1; j < list.size(); j++) { // then we check all successors
                                     KeyedDataPointGeneral follow = list.get(j);
-                                    if (follow instanceof VelocityEvent && follow.getTimeStampMs() > data.getTimeStampMs() & (follow.getTimeStampMs() - data.getTimeStampMs() <= Time.minutes(100).toMilliseconds())) {
+                                    if (follow instanceof VelocityEvent && follow.getTimeStampMs() > data.getTimeStampMs() & (follow.getTimeStampMs() - data.getTimeStampMs() <= (timeWindow.getEnd()-timeWindow.getStart()))) {
                                         // only successors that are velocity events are of interest
                                         collector.collect(new Tuple2<KeyedDataPointGeneral, Long>(data, follow.getTimeStampMs()));
                                         // for each quantity event only the next following velocity event is relevant

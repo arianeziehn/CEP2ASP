@@ -37,7 +37,7 @@ public class Q1_SEQQuery_IntervalJoin {
 
         String outputPath;
         if (!parameters.has("output")) {
-            outputPath = file.replace(".csv", "_resultQ1_ASP.csv");
+            outputPath = file.replace(".csv", "_resultQ1_ASP_IVJ.csv");
         } else {
             outputPath = parameters.get("output");
         }
