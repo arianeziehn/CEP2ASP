@@ -34,9 +34,9 @@ public class Q7_ITERPattern_I2 {
 
         String file = parameters.get("input");
         String outputPath;
-        Integer velFilter = parameters.getInt("vel", 184);
+        Integer velFilter = parameters.getInt("vel", 174);
         Integer windowSize = parameters.getInt("wsize", 15);
-        int iter = parameters.getInt("iter", 5);
+        int iter = parameters.getInt("iter", 9);
         long throughput = parameters.getLong("tput", 100000);
 
         if (!parameters.has("output")) {
@@ -69,11 +69,11 @@ public class Q7_ITERPattern_I2 {
         // we require a type specific flatmap for our Latency Logging
         if (iter == 2) {
             DataStream<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple2());
-            result.flatMap(new LatencyLoggerT2());
+            result.flatMap(new LatencyLoggerT2(true));
             result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
         } else if (iter == 3) {
             DataStream<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple3());
-            result.flatMap(new LatencyLoggerT3());
+            result.flatMap(new LatencyLoggerT3(true));
             result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
         } else if (iter == 4 || iter == 5 || iter > 9) {
             /**
@@ -81,11 +81,11 @@ public class Q7_ITERPattern_I2 {
              */
         } else if (iter == 6) {
             DataStream<Tuple6<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple6());
-            result.flatMap(new LatencyLoggerT6());
+            result.flatMap(new LatencyLoggerT6(true));
             result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
         } else if (iter == 9) {
             DataStream<Tuple9<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple9());
-            result.flatMap(new LatencyLoggerT9());
+            result.flatMap(new LatencyLoggerT9(true));
             result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
         }
 

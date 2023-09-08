@@ -70,7 +70,7 @@ public class Q9_SEQPatternLength2 {
 
         DataStream<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple2());
 
-        result.flatMap(new LatencyLoggerT2());
+        result.flatMap(new LatencyLoggerT2(true));
         result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 
         JobExecutionResult executionResult = env.execute("My Flink Job");

@@ -17,10 +17,14 @@ public class LatencyLoggerT3 extends RichFlatMapFunction<Tuple3<KeyedDataPointGe
     private String lastEvent;
     private long totalLatencySum = 0;
     private long matchedPatternsCount = 0;
-
     private long lastLogTimeMs = -1;
+    private boolean logPerTuple = false; //enables logging per tuple
 
     public LatencyLoggerT3() {
+    }
+
+    public LatencyLoggerT3(boolean logPerTuple) {
+        this.logPerTuple = true;
     }
 
     @Override
@@ -42,7 +46,7 @@ public class LatencyLoggerT3 extends RichFlatMapFunction<Tuple3<KeyedDataPointGe
         }
 
         long timeDiff = currentTime - lastLogTimeMs;
-        if (timeDiff >= 1000) {
+        if (timeDiff >= 1000 || this.logPerTuple) {
             double eventDetectionLatencyAVG = this.totalLatencySum / this.matchedPatternsCount;
             String message = "LatencyLogger: $ On Worker: During the last $" + timeDiff + "$ ms, AVGEventDetLatSum: $" + eventDetectionLatencyAVG + "$, derived from a LatencySum: $" + totalLatencySum +
                     "$, and a matche Count of : $" + matchedPatternsCount + "$";

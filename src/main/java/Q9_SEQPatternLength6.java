@@ -135,11 +135,11 @@ public class Q9_SEQPatternLength6 {
 
         if (patternLength == 5) {
             DataStream<Tuple5<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple5());
-            result.flatMap(new LatencyLoggerT5());
+            result.flatMap(new LatencyLoggerT5(true));
             result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
         } else if (patternLength == 6) {
             DataStream<Tuple6<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple6());
-            result.flatMap(new LatencyLoggerT6());
+            result.flatMap(new LatencyLoggerT6(true));
             result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
         }
 

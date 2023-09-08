@@ -111,11 +111,11 @@ public class Q9_SEQPatternLength4 {
 
         if (patternLength == 3) {
             DataStream<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple3SEQ());
-            result.flatMap(new LatencyLoggerT3());
+            result.flatMap(new LatencyLoggerT3(true));
             result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
         } else if (patternLength == 4) {
             DataStream<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple4());
-            result.flatMap(new LatencyLoggerT4());
+            result.flatMap(new LatencyLoggerT4(true));
             result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
         }
 

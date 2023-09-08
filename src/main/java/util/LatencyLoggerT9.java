@@ -16,10 +16,14 @@ public class LatencyLoggerT9 extends RichFlatMapFunction<Tuple9<KeyedDataPointGe
     private static final Logger LOG = LoggerFactory.getLogger(LatencyLoggerT9.class);
     private long totalLatencySum = 0;
     private long matchedPatternsCount = 0;
-
     private long lastLogTimeMs = -1;
+    private boolean logPerTuple = false; //enables logging per tuple
 
     public LatencyLoggerT9() {
+    }
+
+    public LatencyLoggerT9(boolean logPerTuple) {
+        this.logPerTuple = logPerTuple;
     }
 
     @Override
@@ -41,7 +45,7 @@ public class LatencyLoggerT9 extends RichFlatMapFunction<Tuple9<KeyedDataPointGe
         }
 
         long timeDiff = currentTime - lastLogTimeMs;
-        if (timeDiff >= 1000) {
+        if (timeDiff >= 1000 || this.logPerTuple) {
             double eventDetectionLatencyAVG = this.totalLatencySum / this.matchedPatternsCount;
             String message = "LatencyLogger: $ On Worker: During the last $" + timeDiff + "$ ms, AVGEventDetLatSum: $" + eventDetectionLatencyAVG + "$, derived from a LatencySum: $" + totalLatencySum +
                     "$, and a matche Count of : $" + matchedPatternsCount + "$";

@@ -37,9 +37,9 @@ public class Q7_ITERQuery_I2 {
         String file = parameters.get("input");
         String outputPath;
         long throughput = parameters.getLong("tput", 100000);
-        int iter = parameters.getInt("iter", 5);
+        int iter = parameters.getInt("iter", 9);
         Integer windowSize = parameters.getInt("wsize", 15);
-        Integer velFilter = parameters.getInt("vel", 184);
+        Integer velFilter = parameters.getInt("vel", 174);
 
         if (!parameters.has("output")) {
             outputPath = file.replace(".csv", "_resultQ7_I2_ASP.csv");
@@ -106,7 +106,7 @@ public class Q7_ITERQuery_I2 {
             }
         });
 
-        result.flatMap(new LatencyLoggerT2_O3());
+        result.flatMap(new LatencyLoggerT2_O3(true));
         result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 
         /** Output example:

@@ -83,7 +83,7 @@ public class Q1_SEQQuery {
                     }
                 });
 
-        result.flatMap(new LatencyLoggerT2());
+        result.flatMap(new LatencyLoggerT2(true));
         result//.print();
                 .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 
