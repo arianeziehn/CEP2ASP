@@ -58,7 +58,9 @@ public class QSEQ_E1_IntervalJoin {
 
         DataStream<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> result = quaStream.keyBy(KeyedDataPointGeneral::getKey)
                 .intervalJoin(pm10Stream.keyBy(KeyedDataPointGeneral::getKey))
-                .between(Time.seconds(1), Time.seconds(windowSize*60 - 1))
+                .between(Time.minutes(0), Time.minutes(windowSize))
+                .lowerBoundExclusive()
+                .upperBoundExclusive()
                 .process(new ProcessJoinFunction<KeyedDataPointGeneral, KeyedDataPointGeneral, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
                     @Override
                     public void processElement(KeyedDataPointGeneral d1, KeyedDataPointGeneral d2, ProcessJoinFunction<KeyedDataPointGeneral, KeyedDataPointGeneral, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>.Context context, Collector<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
