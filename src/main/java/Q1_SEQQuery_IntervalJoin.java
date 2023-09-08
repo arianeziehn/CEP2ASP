@@ -71,7 +71,7 @@ public class Q1_SEQQuery_IntervalJoin {
                     }
                 });
 
-        result.flatMap(new LatencyLoggerT2());
+        result.flatMap(new LatencyLoggerT2(true));
         result//.print();
                 .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 

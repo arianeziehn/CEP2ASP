@@ -7,15 +7,23 @@ import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class logs the latency as average of all result tuples (Tuple6 of KeyedDataPoints) received within a second
+ */
+
 public class LatencyLoggerT6 extends RichFlatMapFunction<Tuple6<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>, Integer> {
 
     private static final Logger LOG = LoggerFactory.getLogger(LatencyLoggerT6.class);
     private long totalLatencySum = 0;
     private long matchedPatternsCount = 0;
-
     private long lastLogTimeMs = -1;
+    private boolean logPerTuple = false; //enables logging per tuple
 
     public LatencyLoggerT6() {
+    }
+
+    public LatencyLoggerT6(boolean logPerTuple) {
+        this.logPerTuple = logPerTuple;
     }
 
     @Override
@@ -37,7 +45,7 @@ public class LatencyLoggerT6 extends RichFlatMapFunction<Tuple6<KeyedDataPointGe
         }
 
         long timeDiff = currentTime - lastLogTimeMs;
-        if (timeDiff >= 1000) {
+        if (timeDiff >= 1000 || this.logPerTuple) {
             double eventDetectionLatencyAVG = this.totalLatencySum / this.matchedPatternsCount;
             String message = "LatencyLogger: $ On Worker: During the last $" + timeDiff + "$ ms, AVGEventDetLatSum: $" + eventDetectionLatencyAVG + "$, derived from a LatencySum: $" + totalLatencySum +
                     "$, and a matche Count of : $" + matchedPatternsCount + "$";
