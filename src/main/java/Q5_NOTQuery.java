@@ -1,5 +1,3 @@
-package Q_SubmissionSigmodVLDB;
-
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.functions.FlatJoinFunction;
 import org.apache.flink.api.java.functions.KeySelector;
@@ -18,6 +16,7 @@ import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 import util.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -91,7 +90,7 @@ public class Q5_NOTQuery {
                         for (int i = 0; i < list.size(); i++) {
                             Tuple2<KeyedDataPointGeneral, Integer> data = list.get(i);
                             boolean followedBy = false;
-                            if (data.f0 instanceof QuantityEvent && (timeWindow.getEnd() - data.f0.getTimeStampMs() >= Time.minutes(15).toMilliseconds())) {
+                            if (data.f0 instanceof QuantityEvent && (timeWindow.getEnd() - data.f0.getTimeStampMs() >= (timeWindow.getEnd()-timeWindow.getStart()))) {
                                 for (int j = i + 1; j < list.size(); j++) {
                                     Tuple2<KeyedDataPointGeneral, Integer> follow = list.get(j);
                                     if (follow.f0 instanceof VelocityEvent && follow.f0.getTimeStampMs() > data.f0.getTimeStampMs() & (follow.f0.getTimeStampMs() - data.f0.getTimeStampMs() <= Time.minutes(16).toMilliseconds())) {
@@ -102,9 +101,11 @@ public class Q5_NOTQuery {
                                 }
                                 // also valid if no velocity event occurs at all (i.e., no predicate on the event type)
                                 if (!followedBy) {
-                                    long ts = data.f0.getTimeStampMs() + Time.minutes(windowSize).toMilliseconds();
+                                    long ts = data.f0.getTimeStampMs() + (timeWindow.getEnd()-timeWindow.getStart());
                                     collector.collect(new Tuple3<KeyedDataPointGeneral, Long, Integer>(data.f0, ts, 1));
                                 }
+                            }else if (timeWindow.getEnd() - data.f0.getTimeStampMs() < (timeWindow.getEnd()-timeWindow.getStart())) {
+                                break;
                             }
                         }
                         //we need to assign the event timestamp to the new stream again to guarantee the time constraints of the sequence operator
@@ -121,15 +122,25 @@ public class Q5_NOTQuery {
                 .equalTo(new UDFs.getArtificalKey())
                 .window(SlidingEventTimeWindows.of(Time.minutes(windowSize), Time.minutes(1)))
                 .apply(new FlatJoinFunction<Tuple3<KeyedDataPointGeneral, Long, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
+                    final HashSet<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> set = new HashSet<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>(1000);
                     @Override
                     public void join(Tuple3<KeyedDataPointGeneral, Long, Integer> d1, Tuple2<KeyedDataPointGeneral, Integer> d2, Collector<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
                         // we check if in between the events is no velocity event
                         if ((d1.f1 >= d2.f0.getTimeStampMs() && d1.f0.getTimeStampMs() < d2.f0.getTimeStampMs())) {
-                            collector.collect(new Tuple2<>(d1.f0, d2.f0));
+                            Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral> result = new Tuple2<>(d1.f0, d2.f0);
+                            if (!set.contains(result)) {
+                                if (set.size() == 1000) {
+                                    set.removeAll(set);
+                                    // to maintain the HashSet Size we flush after 1000 entries
+                                }
+                                collector.collect(result);
+                                set.add(result);
+                            }
                         }
                     }
                 });
 
+        result.flatMap(new LatencyLoggerT2());
         result //.print();
                 .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 

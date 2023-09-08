@@ -1,6 +1,8 @@
-package Q_SubmissionSigmodVLDB;
-
 import org.apache.flink.api.common.JobExecutionResult;
+import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.api.java.tuple.Tuple6;
+import org.apache.flink.api.java.tuple.Tuple9;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.cep.CEP;
 import org.apache.flink.cep.PatternStream;
@@ -67,9 +69,28 @@ public class Q6_ITERPattern_I1 {
                 .within(Time.minutes(windowSize));
 
         PatternStream<KeyedDataPointGeneral> patternStream = CEP.pattern(input, pattern);
-        DataStream<String> result = patternStream.flatSelect(new UDFs.GetResultTuple());
-
-        result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
+        // we require a type specific flatmap for our Latency Logging
+        if (times == 2) {
+            DataStream<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple2());
+            result.flatMap(new LatencyLoggerT2(true));
+            result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
+        } else if (times == 3) {
+            DataStream<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple3());
+            result.flatMap(new LatencyLoggerT3(true));
+            result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
+        } else if (times == 4 || times == 5 || times > 9) {
+            /**
+             * TODO
+             */
+        } else if (times == 6) {
+            DataStream<Tuple6<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple6());
+            result.flatMap(new LatencyLoggerT6(true));
+            result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
+        } else if (times == 9) {
+            DataStream<Tuple9<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple9());
+            result.flatMap(new LatencyLoggerT9(true));
+            result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
+        }
 
         JobExecutionResult executionResult = env.execute("My Flink Job");
         System.out.println("The job took " + executionResult.getNetRuntime(TimeUnit.MILLISECONDS) + "ms to execute");

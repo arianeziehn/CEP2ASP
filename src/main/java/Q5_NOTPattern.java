@@ -1,6 +1,5 @@
-package Q_SubmissionSigmodVLDB;
-
 import org.apache.flink.api.common.JobExecutionResult;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.cep.CEP;
 import org.apache.flink.cep.PatternStream;
@@ -92,10 +91,11 @@ public class Q5_NOTPattern {
 
         PatternStream<KeyedDataPointGeneral> patternStream = CEP.pattern(input, pattern1);
 
-        DataStream<String> result = patternStream.flatSelect(new UDFs.GetResultTuple());
+        DataStream<Tuple2<KeyedDataPointGeneral,KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple2());
 
+        result.flatMap(new LatencyLoggerT2());
         result//.print();
-              .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
+                .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 
         JobExecutionResult executionResult = env.execute("My Flink Job");
         System.out.println("The job took " + executionResult.getNetRuntime(TimeUnit.MILLISECONDS) + "ms to execute");
