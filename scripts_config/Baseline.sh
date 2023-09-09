@@ -1,253 +1,165 @@
 #!/usr/bin/env bash
-startflink='/home/ziehn-ldap/flink-1.11.6/bin/start-cluster.sh'
-stopflink='/home/ziehn-ldap/flink-1.11.6/bin/stop-cluster.sh'
-flink='/home/ziehn-ldap/flink-1.11.6/bin/flink'
-resultFile='/local-ssd/ziehn-ldap/BaselineExp.txt'
-jar='/home/ziehn-ldap/flink-cep-1.0-SNAPSHOT.jar'
-output_path='/home/ziehn-ldap/result'
+startflink='/path/to/flink-1.11.6/bin/start-cluster.sh'
+stopflink='/path/to/flink-1.11.6/bin/stop-cluster.sh'
+flink='/path/to/flink-1.11.6/bin/flink'
+resultFile='/path/to/CollectEcho.txt'
+jar='/path/to/flink-cep-1.0-SNAPSHOT.jar'
+data_path1='/path/to/QnV_R2000070.csv'
+data_path2='/path/to/QnV_large.csv' # You find the file under https://gofile.io/d/pjglkV
+data_path3='/path/to/luftdaten_11245.csv'
+output_path='/path/to/CollectOutput.txt'
 
 now=$(date +"%T")
 today=$(date +%d.%m.%y)
 echo "Current time : $today $now" >>$resultFile
 echo "----------$today $now------------" >>$resultFile
-echo "------------ Start Next Task Testing ------------" >>$resultFile
-for loop in 1 2 3; do
-    #SEQ(2) Query
-    now=$(date +"%T")
-    today=$(date +%d.%m.%y)
-    echo "Current time : $today $now" >>$resultFile
-    echo "Flink start" >>$resultFile
-    $startflink
-    START=$(date +%s)
-    $flink run -p 8 -c QSEQ_E1 $jar --output $output_path --tput 550000 --run 20
-    END=$(date +%s)
-    DIFF=$((END - START))
-    echo "QSEQ_E1 run "$loop " : "$DIFF"s" >>$resultFile
-    $stopflink
-    echo "------------ Flink stopped ------------" >>$resultFile
-    #cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/BaselineExp/resultQSEQL_E1/FOut_'$loop'_8_300000.txt'
-    #cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/BaselineExp/resultQSEQL_E1/FOut_'$loop'_8_300000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultQSEQT_E1/FLog_'$loop'_8_550000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultQSEQT_E1/FLog_'$loop'_8_550000.txt'
-    #NSEQ(2) Pattern - new
-    now=$(date +"%T")
-    today=$(date +%d.%m.%y)
-    echo "Current time : $today $now" >>$resultFile
-    echo "Flink start" >>$resultFile
-    $startflink
-    START=$(date +%s)
-    $flink run -p 8 -c PNSEQ_E1 $jar --output $output_path --tput 300000 --run 20
-    END=$(date +%s)
-    DIFF=$((END - START))
-    echo "PNSEQ_E1 run "$loop " : "$DIFF"s" >>$resultFile
-    $stopflink
-    echo "------------ Flink stopped ------------" >>$resultFile
-    #cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/BaselineExp/resultPNSEQL_E1/FOut_'$loop'_'$p'_'$tput'.txt'
-    #cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/BaselineExp/resultPNSEQL_E1/FOut_'$loop'_'$p'_'$tput'.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultPNSEQT_E1/FLog_'$loop'_8_300000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultPNSEQT_E1/FLog_'$loop'_8_300000.txt'
-    now=$(date +"%T")
-    today=$(date +%d.%m.%y)
-    echo "Current time : $today $now" >>$resultFile
-    echo "Flink start" >>$resultFile
-    $startflink
-    START=$(date +%s)
-    $flink run -p 16 -c QNSEQ_E1 $jar --output $output_path --tput 400000 --run 20
-    END=$(date +%s)
-    DIFF=$((END - START))
-    echo "QNSEQ_E1 run "$loop " : "$DIFF"s" >>$resultFile
-    $stopflink
-    echo "------------ Flink stopped ------------" >>$resultFile
-    #cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/BaselineExp/resultQNSEQL_E1/FOut_'$loop'_16_250000.txt'
-    #cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/BaselineExp/resultQNSEQL_E1/FOut_'$loop'_16_250000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultQNSEQT_E1/FLog_'$loop'_16_400000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultQNSEQT_E1/FLog_'$loop'_16_400000.txt'
-    now=$(date +"%T")
-    today=$(date +%d.%m.%y)
-    echo "Current time : $today $now" >>$resultFile
-    echo "Flink start" >>$resultFile
-    $startflink
-    START=$(date +%s)
-    $flink run -p 16 -c QNSEQ_E1_IntervalJoin $jar --output $output_path --tput 130000 --run 20
-    END=$(date +%s)
-    DIFF=$((END - START))
-    echo "QNSEQ_E1_IntervalJoin run "$loop " : "$DIFF"s" >>$resultFile
-    $stopflink
-    echo "------------ Flink stopped ------------" >>$resultFile
-    #cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/BaselineExp/resultQNSEQL_IVJ_E1/FOut_'$loop'_16_250000.txt'
-    #cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/BaselineExp/resultQNSEQL_IVJ_E1/FOut_'$loop'_16_250000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultQNSEQT_IVJ_E1/FLog_'$loop'_16_130000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultQNSEQT_IVJ_E1/FLog_'$loop'_16_130000.txt'
-    now=$(date +"%T")
-    today=$(date +%d.%m.%y)
-    echo "Current time : $today $now" >>$resultFile
-    echo "Flink start" >>$resultFile
-    $startflink
-    START=$(date +%s)
-    $flink run -p 8 -c PSEQ_E1 $jar --output $output_path --tput 100000 --run 20 --sel 10
-    END=$(date +%s)
-    DIFF=$((END - START))
-    echo "PSEQ_E1 run "$loop " : "$DIFF"s" >>$resultFile
-    $stopflink
-    echo "------------ Flink stopped ------------" >>$resultFile
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultPSEQT_E1/FLogS10_'$loop'_8_100000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultPSEQT_E1/FLogS10_'$loop'_8_100000.txt'
-    #SEQ(2) Query
-    now=$(date +"%T")
-    today=$(date +%d.%m.%y)
-    echo "Current time : $today $now" >>$resultFile
-    echo "Flink start" >>$resultFile
-    $startflink
-    START=$(date +%s)
-    $flink run -p 8 -c QSEQ_E1 $jar --output $output_path --tput 225000 --run 20 --sel 5
-    END=$(date +%s)
-    DIFF=$((END - START))
-    echo "QSEQ_E1 run "$loop " : "$DIFF"s" >>$resultFile
-    $stopflink
-    echo "------------ Flink stopped ------------" >>$resultFile
-    #cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/BaselineExp/resultQSEQL_E1/FOut_'$loop'_8_300000.txt'
-    #cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/BaselineExp/resultQSEQL_E1/FOut_'$loop'_8_300000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultQSEQT_E1/FLogS'$sel'_'$loop'_8_225000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultQSEQT_E1/FLogS'$sel'_'$loop'_8_225000.txt'
-    now=$(date +"%T")
-    today=$(date +%d.%m.%y)
-    echo "Current time : $today $now" >>$resultFile
-    echo "Flink start" >>$resultFile
-    $startflink
-    START=$(date +%s)
-    $flink run -p 8 -c QSEQ_E1 $jar --output $output_path --tput 100000 --run 20 --sel 10
-    END=$(date +%s)
-    DIFF=$((END - START))
-    echo "QSEQ_E1 run "$loop " : "$DIFF"s" >>$resultFile
-    $stopflink
-    echo "------------ Flink stopped ------------" >>$resultFile
-    #cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/BaselineExp/resultQSEQL_E1/FOut_'$loop'_8_300000.txt'
-    #cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/BaselineExp/resultQSEQL_E1/FOut_'$loop'_8_300000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultQSEQT_E1/FLogS'$sel'_'$loop'_8_100000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultQSEQT_E1/FLogS'$sel'_'$loop'_8_100000.txt'
-done
-#test sel increase
-for loop in 1 2 3 4; do
-  for sel in 5 10; do
-      # QSEQ_IVJ
-    now=$(date +"%T")
-    today=$(date +%d.%m.%y)
-    echo "Current time : $today $now" >>$resultFile
-    echo "Flink start" >>$resultFile
-    $startflink
-    START=$(date +%s)
-    $flink run -p 16 -c QSEQ_E1_IntervalJoin $jar --output $output_path --tput 30000 --run 20 --sel $sel
-    END=$(date +%s)
-    DIFF=$((END - START))
-    echo "QSEQ_E1_IntervalJoin run "$loop " : "$DIFF"s" >>$resultFile
-    $stopflink
-    echo "------------ Flink stopped ------------" >>$resultFile
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-21.out' '/home/ziehn-ldap/BaselineExp/resultQSEQL_IVJ_E1/FOut_'$sel'_'$loop'_16_30000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-21.out' '/home/ziehn-ldap/BaselineExp/resultQSEQL_IVJ_E1/FOut_'$sel'_'$loop'_16_30000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultQSEQT_IVJ_E1/FLogS'$sel'_'$loop'_16_30000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultQSEQT_IVJ_E1/FLogS'$sel'_'$loop'_16_30000.txt'
-done
-done
-#get first latency results
-for loop in 5 6 7 8 9 10; do
-now=$(date +"%T")
-    today=$(date +%d.%m.%y)
-    echo "Current time : $today $now" >>$resultFile
-    echo "Flink start" >>$resultFile
-    $startflink
-    START=$(date +%s)
-    $flink run -p 8 -c PSEQ_E1 $jar --output $output_path --tput 250000 --run 20
-    END=$(date +%s)
-    DIFF=$((END - START))
-    echo "PSEQ_E1 run "$loop " : "$DIFF"s" >>$resultFile
-    $stopflink
-    echo "------------ Flink stopped ------------" >>$resultFile
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-21.out' '/home/ziehn-ldap/BaselineExp/resultPSEQL_E1/FOut_'$loop'_8_250000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-21.out' '/home/ziehn-ldap/BaselineExp/resultPSEQL_E1/FOut_'$loop'_8_250000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultPSEQT_E1/FLog_'$loop'_8_250000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultPSEQT_E1/FLog_'$loop'_8_250000.txt'
-    #SEQ(2) Query
-    now=$(date +"%T")
-    today=$(date +%d.%m.%y)
-    echo "Current time : $today $now" >>$resultFile
-    echo "Flink start" >>$resultFile
-    $startflink
-    START=$(date +%s)
-    $flink run -p 8 -c QSEQ_E1 $jar --output $output_path --tput 500000 --run 20
-    END=$(date +%s)
-    DIFF=$((END - START))
-    echo "QSEQ_E1 run "$loop " : "$DIFF"s" >>$resultFile
-    $stopflink
-    echo "------------ Flink stopped ------------" >>$resultFile
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-21.out' '/home/ziehn-ldap/BaselineExp/resultQSEQL_E1/FOut_'$loop'_8_500000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-21.out' '/home/ziehn-ldap/BaselineExp/resultQSEQL_E1/FOut_'$loop'_8_500000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultQSEQT_E1/FLog_'$loop'_8_500000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultQSEQT_E1/FLog_'$loop'_8_500000.txt'
-    # QSEQ_IVJ
-    now=$(date +"%T")
-    today=$(date +%d.%m.%y)
-    echo "Current time : $today $now" >>$resultFile
-    echo "Flink start" >>$resultFile
-    $startflink
-    START=$(date +%s)
-    $flink run -p 16 -c QSEQ_E1_IntervalJoin $jar --output $output_path --tput 400000 --run 20
-    END=$(date +%s)
-    DIFF=$((END - START))
-    echo "QSEQ_E1_IntervalJoin run "$loop " : "$DIFF"s" >>$resultFile
-    $stopflink
-    echo "------------ Flink stopped ------------" >>$resultFile
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-21.out' '/home/ziehn-ldap/BaselineExp/resultQSEQL_IVJ_E1/FOut_'$loop'_16_400000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-21.out' '/home/ziehn-ldap/BaselineExp/resultQSEQL_IVJ_E1/FOut_'$loop'_16_400000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultQSEQT_IVJ_E1/FLog_'$loop'_16_400000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultQSEQT_IVJ_E1/FLog_'$loop'_16_400000.txt'
-    now=$(date +"%T")
-    today=$(date +%d.%m.%y)
-    echo "Current time : $today $now" >>$resultFile
-    echo "Flink start" >>$resultFile
-    $startflink
-    START=$(date +%s)
-    $flink run -p 8 -c QITER_E1 $jar --output $output_path --tput 1500000 --run 20
-    END=$(date +%s)
-    DIFF=$((END - START))
-    echo "QITER_E1 run "$loop " : "$DIFF"s" >>$resultFile
-    $stopflink
-    echo "------------ Flink stopped ------------" >>$resultFile
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-21.out' '/home/ziehn-ldap/BaselineExp/resultQITERL_E1/FOut_'$loop'_8_150000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-21.out' '/home/ziehn-ldap/BaselineExp/resultQITERL_E1/FOut_'$loop'_8_150000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultQITERT_E1/FLog_'$loop'_8_150000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultQITERT_E1/FLog_'$loop'_8_150000.txt'
-    # P ITER
-    now=$(date +"%T")
-    today=$(date +%d.%m.%y)
-    echo "Current time : $today $now" >>$resultFile
-    echo "Flink start" >>$resultFile
-    $startflink
-    START=$(date +%s)
-    $flink run -p 8 -c PITER_E1 $jar --output $output_path --tput 150000 --run 20
-    END=$(date +%s)
-    DIFF=$((END - START))
-    echo "PITER_E1 run "$loop " : "$DIFF"s" >>$resultFile
-    $stopflink
-    echo "------------ Flink stopped ------------" >>$resultFile
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-21.out' '/home/ziehn-ldap/BaselineExp/resultPITERL_E1/FOut_'$loop'_8_150000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-21.out' '/home/ziehn-ldap/BaselineExp/resultPITERL_E1/FOut_'$loop'_8_150000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultPITERT_E1/FLog_'$loop'_8_150000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultPITERT_E1/FLog_'$loop'_8_150000.txt'
-    now=$(date +"%T")
-    today=$(date +%d.%m.%y)
-    echo "Current time : $today $now" >>$resultFile
-    echo "Flink start" >>$resultFile
-    $startflink
-    START=$(date +%s)
-    $flink run -p 8 -c PSEQ_E1 $jar --output $output_path --tput 150000 --run 20 --sel 5
-    END=$(date +%s)
-    DIFF=$((END - START))
-    echo "PSEQ_E1 run "$loop " : "$DIFF"s" >>$resultFile
-    $stopflink
-    echo "------------ Flink stopped ------------" >>$resultFile
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-21.out' '/home/ziehn-ldap/BaselineExp/resultPSEQL_E1/FOutS5_'$loop'_8_150000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-21.out' '/home/ziehn-ldap/BaselineExp/resultPSEQL_E1/FOutS5_'$loop'_8_150000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultPSEQT_E1/FLogS5_'$loop'_8_150000.txt'
-    cp '/home/ziehn-ldap/flink-1.11.6/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-21.log' '/home/ziehn-ldap/BaselineExp/resultPSEQT_E1/FLogS5_'$loop'_8_150000.txt'
+for loop in 1 2 3 4 5 6 7 8 9 10; do
+#SEQ(2) --vel 175 --qua 250 (sel: 5*10^⁻7) is equivalent to Baseline
+  now=$(date +"%T")
+  today=$(date +%d.%m.%y)
+  echo "Current time : $today $now" >>$resultFile
+  echo "Flink start" >>$resultFile
+  $startflink
+  START=$(date +%s)
+  $flink run -p 8 -c Q1_SEQPattern $jar --input $data_path2 --output $output_path --vel 175 --qua 250 --tput 110000
+  END=$(date +%s)
+  DIFF=$((END - START))
+  echo "Q1_SEQPattern run "$loop " --vel 175 --qua 250 : "$DIFF"s" >>$resultFile
+  $stopflink
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_PSEQ1L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_PSEQ1L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_PSEQ1T_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_PSEQ1T_'$loop'.txt'
+  echo "------------ Flink stopped ------------" >>$resultFile
+  now=$(date +"%T")
+  today=$(date +%d.%m.%y)
+  echo "Current time : $today $now" >>$resultFile
+  echo "Flink start" >>$resultFile
+  $startflink
+  START=$(date +%s)
+  $flink run -c Q1_SEQQuery $jar --input $data_path2 --output $output_path --vel 175 --qua 250 --tput 110000
+  END=$(date +%s)
+  DIFF=$((END - START))
+  echo "Q1_SEQQuery run "$loop " --vel 175 --qua 250 : "$DIFF"s" >>$resultFile
+  $stopflink
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_QSEQ1L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_QSEQ1L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_QSEQ1T_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_QSEQ1T_'$loop'.txt'
+  echo "------------ Flink stopped ------------" >>$resultFile
+  now=$(date +"%T")
+  today=$(date +%d.%m.%y)
+  echo "Current time : $today $now" >>$resultFile
+  echo "Flink start" >>$resultFile
+  $startflink
+  START=$(date +%s)
+  $flink run -c Q1_SEQQuery_IntervalJoin $jar --input $data_path2 --output $output_path --vel 175 --qua 250 --tput 110000
+  END=$(date +%s)
+  DIFF=$((END - START))
+  echo "Q1_SEQQuery_IntervalJoin run "$loop " --vel 175 --qua 250 : "$DIFF"s" >>$resultFile
+  $stopflink
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_QSEQIVJ1L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_QSEQIVJ1L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_QSEQIVJ1T_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_QSEQIVJ1T_'$loop'.txt'
+  echo "------------ Flink stopped ------------" >>$resultFile
+  # NOT(3)
+  now=$(date +"%T")
+  today=$(date +%d.%m.%y)
+  echo "Current time : $today $now" >>$resultFile
+  echo "Flink start" >>$resultFile
+  $startflink
+  START=$(date +%s)
+  $flink run -c Q5_NOTPattern $jar --input $data_path1 --inputAQ $data_path3 --output $output_path --vel 99 --qua 71 --pm2 38 --tput 25000 --iter 36
+  END=$(date +%s)
+  DIFF=$((END - START))
+  echo "Q5_NOTPattern run "$loop " : "$DIFF"s" >>$resultFile
+  $stopflink
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_PNSEQ1L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_PNSEQ1L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_PNSEQ1T_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_PNSEQ1T_'$loop'.txt'
+  echo "------------ Flink stopped ------------" >>$resultFile
+  now=$(date +"%T")
+  today=$(date +%d.%m.%y)
+  echo "Current time : $today $now" >>$resultFile
+  echo "Flink start" >>$resultFile
+  $startflink
+  START=$(date +%s)
+  $flink run -c Q5_NOTQuery $jar --input $data_path1 --inputAQ $data_path3 --output $output_path --vel 99 --qua 71 --pm2 38 --tput 110000 --iter 36
+  END=$(date +%s)
+  DIFF=$((END - START))
+  echo "Q5_NOTQuery run "$loop " : "$DIFF"s" >>$resultFile
+  $stopflink
+  echo "------------ Flink stopped ------------" >>$resultFile
+  now=$(date +"%T")
+  today=$(date +%d.%m.%y)
+  echo "Current time : $today $now" >>$resultFile
+  echo "Flink start" >>$resultFile
+  $startflink
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_QNSEQ1L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_QNSEQ1L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_QNSEQ1T_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_QNSEQ1T_'$loop'.txt'
+  START=$(date +%s)
+  $flink run -c Q5_NOTQuery_IntervalJoin $jar --input $data_path1 --inputAQ $data_path3 --output $output_path --vel 99 --qua 71 --pm2 38 --tput 110000 --iter 36
+  END=$(date +%s)
+  DIFF=$((END - START))
+  echo "Q5_NOTQuery_IntervalJoin run "$loop " : "$DIFF"s" >>$resultFile
+  $stopflink
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_QNSEQIVJ1L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_QNSEQIVJ1L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_QNSEQIVJ1T_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_QNSEQIVJ1T_'$loop'.txt'
+  echo "------------ Flink stopped ------------" >>$resultFile
+  # ITER(3)
+  now=$(date +"%T")
+  today=$(date +%d.%m.%y)
+  echo "Current time : $today $now" >>$resultFile
+  echo "Flink start" >>$resultFile
+  $startflink
+  START=$(date +%s)
+  $flink run -c Q7_ITERPattern_I2 $jar --input $data_path2 --output $output_path --tput 125000 --times 3 --vel 186
+  END=$(date +%s)
+  DIFF=$((END - START))
+  echo "Q7_ITERPattern_I2 run "$loop " : "$DIFF"s" >>$resultFile
+  $stopflink
+  echo "------------ Flink stopped ------------" >>$resultFile
+  now=$(date +"%T")
+  today=$(date +%d.%m.%y)
+  echo "Current time : $today $now" >>$resultFile
+  echo "Flink start" >>$resultFile
+  $startflink
+  START=$(date +%s)
+  $flink run -c Q7_ITERQuery_I1_3 $jar --input $data_path2 --output $output_path --tput 125000 --times 3 --vel 186
+  END=$(date +%s)
+  DIFF=$((END - START))
+  echo "Q7_ITERQuery_I1_3 run "$loop " : "$DIFF"s" >>$resultFile
+  $stopflink
+  echo "------------ Flink stopped ------------" >>$resultFile
+  now=$(date +"%T")
+  today=$(date +%d.%m.%y)
+  echo "Current time : $today $now" >>$resultFile
+  echo "Flink start" >>$resultFile
+  $startflink
+  START=$(date +%s)
+  $flink run -c Q7_ITERQuery_I1_3_IVJ $jar --input $data_path2 --output $output_path --tput 125000 --times 3 --vel 186
+  END=$(date +%s)
+  DIFF=$((END - START))
+  echo "Q7_ITERQuery_I1_3_IVJ run "$loop " : "$DIFF"s" >>$resultFile
+  $stopflink
+  echo "------------ Flink stopped ------------" >>$resultFile
+  now=$(date +"%T")
+  today=$(date +%d.%m.%y)
+  echo "Current time : $today $now" >>$resultFile
+  echo "Flink start" >>$resultFile
+  $startflink
+  START=$(date +%s)
+  $flink run -c Q7_ITERQuery_I2 $jar --input $data_path2 --output $output_path --tput 125000 --times 3 --vel 186
+  END=$(date +%s)
+  DIFF=$((END - START))
+  echo "Q7_ITERQuery_I2 run "$loop " : "$DIFF"s" >>$resultFile
+  $stopflink
+  echo "------------ Flink stopped ------------" >>$resultFile
 done
 echo "Tasks executed"

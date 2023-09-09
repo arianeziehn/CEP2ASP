@@ -39,9 +39,9 @@ public class Q5_NOTQuery_IntervalJoin {
 
         String file = parameters.get("input");
         String file1 = parameters.get("inputAQ");
-        Integer velFilter = parameters.getInt("vel", 100);
-        Integer quaFilter = parameters.getInt("qua", 75);
-        Integer pm2Filter = parameters.getInt("qua", 40);
+        Integer velFilter = parameters.getInt("vel",99);
+        Integer quaFilter = parameters.getInt("qua",71);
+        Integer pm2Filter = parameters.getInt("pm2",38);
         Integer windowSize = parameters.getInt("wsize", 15);
         String outputPath;
         long throughput = parameters.getLong("tput", 0);
@@ -119,8 +119,6 @@ public class Q5_NOTQuery_IntervalJoin {
                     }
                 }).assignTimestampsAndWatermarks(new UDFs.ExtractTimestampNOT(60000));
 
-        quaStreamWithNextVelocityEvent.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
-
         DataStream<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> result = quaStreamWithNextVelocityEvent
                 .keyBy(new KeySelector<Tuple3<KeyedDataPointGeneral, Long, Integer>, Integer>() {
                     @Override
@@ -142,7 +140,7 @@ public class Q5_NOTQuery_IntervalJoin {
                 });
 
         result.flatMap(new LatencyLoggerT2(true));
-        result.print();
+        result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 
         JobExecutionResult executionResult = env.execute("My FlinkASP Job");
         System.out.println("The job took " + executionResult.getNetRuntime(TimeUnit.MILLISECONDS) + "ms to execute");

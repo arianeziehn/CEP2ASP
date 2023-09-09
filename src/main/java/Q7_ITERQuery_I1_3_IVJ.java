@@ -1,16 +1,13 @@
 import org.apache.flink.api.common.JobExecutionResult;
-import org.apache.flink.api.common.functions.FlatJoinFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
-import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.co.ProcessJoinFunction;
-import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 import util.*;
@@ -22,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  * --input ./src/main/resources/QnV.csv
  */
 
-public class Q6_ITERQuery_I1_3_IVJ {
+public class Q7_ITERQuery_I1_3_IVJ {
     public static void main(String[] args) throws Exception {
 
         final ParameterTool parameters = ParameterTool.fromArgs(args);
@@ -33,13 +30,13 @@ public class Q6_ITERQuery_I1_3_IVJ {
 
         String file = parameters.get("input");
         String outputPath;
-        long throughput = parameters.getLong("tput", 0);
+        long throughput = parameters.getLong("tput", 100000);
         int times = parameters.getInt("times", 3);
-        Integer velFilter = parameters.getInt("vel", 176);
+        Integer velFilter = parameters.getInt("vel", 186);
         Integer windowSize = parameters.getInt("wsize", 15);
 
         if (!parameters.has("output")) {
-            outputPath = file.replace(".csv", "_resultQ6_I1T3_ASP_IVJ.csv");
+            outputPath = file.replace(".csv", "_resultQ7_I1T3_ASP_IVJ.csv");
         } else {
             outputPath = parameters.get("output");
         }
@@ -53,7 +50,7 @@ public class Q6_ITERQuery_I1_3_IVJ {
         input.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, throughput));
 
         DataStream<Tuple2<KeyedDataPointGeneral, Integer>> velStream = input
-                .filter(t -> ((Double) t.getValue()) >= velFilter && (t instanceof VelocityEvent))
+                .filter(t -> ((Double) t.getValue()) > velFilter && (t instanceof VelocityEvent))
                 .map(new UDFs.MapKey());
 
         // iter2
@@ -65,7 +62,7 @@ public class Q6_ITERQuery_I1_3_IVJ {
                 .process(new ProcessJoinFunction<Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>>() {
                     @Override
                     public void processElement(Tuple2<KeyedDataPointGeneral, Integer> d1, Tuple2<KeyedDataPointGeneral, Integer> d2, ProcessJoinFunction<Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>>.Context context, Collector<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>> collector) throws Exception {
-                        if (d1.f0.getTimeStampMs() < d2.f0.getTimeStampMs() && (Double) d1.f0.getValue() < (Double) d2.f0.getValue()) {
+                        if (d1.f0.getTimeStampMs() < d2.f0.getTimeStampMs()) {
                             collector.collect(new Tuple4<>(d1.f0, d2.f0, d1.f0.getTimeStampMs(), 1));
                         }
                     }
@@ -79,7 +76,7 @@ public class Q6_ITERQuery_I1_3_IVJ {
                 .process(new ProcessJoinFunction<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
                     @Override
                     public void processElement(Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> d1, Tuple2<KeyedDataPointGeneral, Integer> d2, ProcessJoinFunction<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>>.Context context, Collector<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
-                        if (d1.f1.getTimeStampMs() < d2.f0.getTimeStampMs() && (Double) d1.f1.getValue() < (Double) d2.f0.getValue()) {
+                        if (d1.f1.getTimeStampMs() < d2.f0.getTimeStampMs()) {
                             collector.collect(new Tuple3<>(d1.f0, d1.f1, d2.f0));
                         }
                     }

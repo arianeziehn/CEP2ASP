@@ -31,9 +31,9 @@ public class Q5_NOTPattern {
 
         String file = parameters.get("input");
         String file1 = parameters.get("inputAQ");
-        Integer velFilter = parameters.getInt("vel",100);
-        Integer quaFilter = parameters.getInt("qua",75);
-        Integer pm2Filter = parameters.getInt("qua",40);
+        Integer velFilter = parameters.getInt("vel",99);
+        Integer quaFilter = parameters.getInt("qua",71);
+        Integer pm2Filter = parameters.getInt("pm2",38);
         Integer windowSize = parameters.getInt("wsize",15);
         String outputPath;
         long throughput = parameters.getLong("tput",100000);
