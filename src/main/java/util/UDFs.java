@@ -294,7 +294,7 @@ public class UDFs {
             return 0;
         }
     }
-
+/*
     public static class KeySelectorNASDAQ implements KeySelector<KeyedDataPointNASDAQ, String> {
         @Override
         public String getKey(KeyedDataPointNASDAQ keyedDataPoint) throws Exception {
@@ -320,7 +320,7 @@ public class UDFs {
             return element.getTimeStampMs();
         }
     }
-
+*/
     // TimeStampAssigners
     public static class ExtractTimestamp2KeyedDataPointGeneralLongInt implements AssignerWithPeriodicWatermarks<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>> {
         private static final long serialVersionUID = 1L;
@@ -574,6 +574,48 @@ public class UDFs {
     public static class getKeyT3 implements KeySelector<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>, String> {
         @Override
         public String getKey(Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long> data) throws Exception {
+            return data.f0.getKey();
+        }
+    }
+
+    public static class getKeyT4 implements KeySelector<Tuple5<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long,Integer>, String> {
+        @Override
+        public String getKey(Tuple5<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long,Integer> data) throws Exception {
+            return data.f0.getKey();
+        }
+    }
+
+    public static class getKeyT5 implements KeySelector<Tuple6<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>, String> {
+        @Override
+        public String getKey(Tuple6<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> data) throws Exception {
+            return data.f0.getKey();
+        }
+    }
+
+    public static class getKeyT6 implements KeySelector<Tuple7<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>, String> {
+        @Override
+        public String getKey(Tuple7<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> data) throws Exception {
+            return data.f0.getKey();
+        }
+    }
+
+    public static class getKeyT7 implements KeySelector<Tuple8<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>, String> {
+        @Override
+        public String getKey(Tuple8<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> data) throws Exception {
+            return data.f0.getKey();
+        }
+    }
+
+    public static class getKeyT8 implements KeySelector<Tuple9<KeyedDataPointGeneral,KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>, String> {
+        @Override
+        public String getKey(Tuple9<KeyedDataPointGeneral,KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> data) throws Exception {
+            return data.f0.getKey();
+        }
+    }
+
+    public static class getKeyT9 implements KeySelector<Tuple10<KeyedDataPointGeneral,KeyedDataPointGeneral,KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>, String> {
+        @Override
+        public String getKey(Tuple10<KeyedDataPointGeneral,KeyedDataPointGeneral,KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> data) throws Exception {
             return data.f0.getKey();
         }
     }
