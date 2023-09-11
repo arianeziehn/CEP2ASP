@@ -35,12 +35,12 @@ public class Q9_SEQPatternLength4 {
         String file1 = parameters.get("inputPM");
         Integer iterations = parameters.getInt("iter", 1); // 28 to match 10000000
         String outputPath;
-        Integer velFilter = parameters.getInt("vel", 115);
-        Integer quaFilter = parameters.getInt("qua", 105);
+        Integer velFilter = parameters.getInt("vel", 104);
+        Integer quaFilter = parameters.getInt("qua", 104);
         Integer windowSize = parameters.getInt("wsize", 15);
         int patternLength = parameters.getInt("pattern", 4);
-        Integer pm2Filter = parameters.getInt("pm2", 5);
-        Integer pm10Filter = parameters.getInt("pm10", 5);
+        Integer pm2Filter = parameters.getInt("pms", 15);
+        Integer pm10Filter = parameters.getInt("pmb", 25);
         long throughput = parameters.getLong("tput", 100000);
         long tputQnV = (long) (throughput * 0.75);
         long tputPM = (long) (throughput * 0.25);
@@ -94,7 +94,7 @@ public class Q9_SEQPatternLength4 {
         }
         if (patternLength >= 4) {
             pattern = pattern
-                    .followedByAny(String.valueOf("forth")).subtype(PartMatter10Event.class).where(
+                    .followedByAny(String.valueOf("fourth")).subtype(PartMatter10Event.class).where(
                             new SimpleCondition<PartMatter10Event>() {
                                 @Override
                                 public boolean filter(PartMatter10Event event) throws Exception {
