@@ -41,8 +41,9 @@ public class Q5_NOTQuery_IntervalJoin {
         String file1 = parameters.get("inputAQ");
         Integer velFilter = parameters.getInt("vel",99);
         Integer quaFilter = parameters.getInt("qua",71);
-        Integer pm2Filter = parameters.getInt("pm2",38);
+        Integer pm2Filter = parameters.getInt("pm",38);
         Integer windowSize = parameters.getInt("wsize", 15);
+        Integer iterations = parameters.getInt("iter",1); // 36 to match 10000000
         String outputPath;
         long throughput = parameters.getLong("tput", 0);
         long tputQnV = 0;
@@ -60,10 +61,10 @@ public class Q5_NOTQuery_IntervalJoin {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
-        DataStream<KeyedDataPointGeneral> inputQnV = env.addSource(new KeyedDataPointSourceFunction(file, ",", tputQnV))
+        DataStream<KeyedDataPointGeneral> inputQnV = env.addSource(new KeyedDataPointSourceFunction(file, iterations, ",", tputQnV))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000));
 
-        DataStream<KeyedDataPointGeneral> inputAQ = env.addSource(new KeyedDataPointSourceFunction(file1, ";", tputPM))
+        DataStream<KeyedDataPointGeneral> inputAQ = env.addSource(new KeyedDataPointSourceFunction(file1, iterations, ";", tputPM))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(180000));
 
         inputQnV.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, tputQnV));
