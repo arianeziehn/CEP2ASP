@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
-startflink='/path/to/flink-1.11.6/bin/start-cluster.sh'
-stopflink='/path/to/flink-1.11.6/bin/stop-cluster.sh'
-flink='/path/to/flink-1.11.6/bin/flink'
-resultFile='/path/to/CollectEcho.txt'
-jar='/path/to/flink-cep-1.0-SNAPSHOT.jar'
-data_path1='/path/to/QnV_R2000070.csv'
-data_path2='/path/to/QnV_large.csv' # You find the file under https://gofile.io/d/pjglkV
-data_path3='/path/to/luftdaten_11245.csv'
-output_path='/path/to/CollectOutput.txt'
+startflink='/home/ziehn-ldap/flink-1.11.6_SP/bin/start-cluster.sh'
+stopflink='/home/ziehn-ldap/flink-1.11.6_SP/bin/stop-cluster.sh'
+flink='/home/ziehn-ldap/flink-1.11.6_SP/bin/flink'
+jar='/home/ziehn-ldap/flink-cep-1.0-SNAPSHOT_SP.jar'
+output_path='/home/ziehn-ldap/result'
+resultFile='/home/ziehn-ldap/CollectEchoSP.txt'
+data_path2='/home/ziehn-ldap/QnV_large.csv' # You find the file here: https://gofile.io/d/pjglkV
+data_path1='/home/ziehn-ldap/QnV_R2000070.csv'
+data_path3='/home/ziehn-ldap/luftdaten_11245.csv'
+output_path='/path/to/CollectOutputBL.txt'
 
 now=$(date +"%T")
 today=$(date +%d.%m.%y)
@@ -70,7 +71,7 @@ for loop in 1 2 3 4 5 6 7 8 9 10; do
   echo "Flink start" >>$resultFile
   $startflink
   START=$(date +%s)
-  $flink run -c Q5_NOTPattern $jar --input $data_path1 --inputAQ $data_path3 --output $output_path --vel 99 --qua 71 --pm2 38 --tput 25000 --iter 36
+  $flink run -c Q5_NOTPattern $jar --input $data_path1 --inputAQ $data_path3 --output $output_path --vel 99 --qua 71 --pm2 38 --tput 220000 --iter 36
   END=$(date +%s)
   DIFF=$((END - START))
   echo "Q5_NOTPattern run "$loop " : "$DIFF"s" >>$resultFile
@@ -86,23 +87,23 @@ for loop in 1 2 3 4 5 6 7 8 9 10; do
   echo "Flink start" >>$resultFile
   $startflink
   START=$(date +%s)
-  $flink run -c Q5_NOTQuery $jar --input $data_path1 --inputAQ $data_path3 --output $output_path --vel 99 --qua 71 --pm2 38 --tput 110000 --iter 36
+  $flink run -c Q5_NOTQuery $jar --input $data_path1 --inputAQ $data_path3 --output $output_path --vel 99 --qua 71 --pm2 38 --tput 220000 --iter 36
   END=$(date +%s)
   DIFF=$((END - START))
   echo "Q5_NOTQuery run "$loop " : "$DIFF"s" >>$resultFile
   $stopflink
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_QNSEQ1L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_QNSEQ1L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_QNSEQ1T_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_QNSEQ1T_'$loop'.txt'
   echo "------------ Flink stopped ------------" >>$resultFile
   now=$(date +"%T")
   today=$(date +%d.%m.%y)
   echo "Current time : $today $now" >>$resultFile
   echo "Flink start" >>$resultFile
   $startflink
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_QNSEQ1L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_QNSEQ1L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_QNSEQ1T_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_QNSEQ1T_'$loop'.txt'
   START=$(date +%s)
-  $flink run -c Q5_NOTQuery_IntervalJoin $jar --input $data_path1 --inputAQ $data_path3 --output $output_path --vel 99 --qua 71 --pm2 38 --tput 110000 --iter 36
+  $flink run -c Q5_NOTQuery_IntervalJoin $jar --input $data_path1 --inputAQ $data_path3 --output $output_path --vel 99 --qua 71 --pm2 38 --tput 220000 --iter 36
   END=$(date +%s)
   DIFF=$((END - START))
   echo "Q5_NOTQuery_IntervalJoin run "$loop " : "$DIFF"s" >>$resultFile
@@ -124,6 +125,10 @@ for loop in 1 2 3 4 5 6 7 8 9 10; do
   DIFF=$((END - START))
   echo "Q7_ITERPattern_I2 run "$loop " : "$DIFF"s" >>$resultFile
   $stopflink
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_PITER1L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_PITER1L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_PITER1T_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_PITER1T_'$loop'.txt'
   echo "------------ Flink stopped ------------" >>$resultFile
   now=$(date +"%T")
   today=$(date +%d.%m.%y)
@@ -136,6 +141,10 @@ for loop in 1 2 3 4 5 6 7 8 9 10; do
   DIFF=$((END - START))
   echo "Q7_ITERQuery_I1_3 run "$loop " : "$DIFF"s" >>$resultFile
   $stopflink
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_QITER1L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_QITER1L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_QITER1T_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_QITER1T_'$loop'.txt'
   echo "------------ Flink stopped ------------" >>$resultFile
   now=$(date +"%T")
   today=$(date +%d.%m.%y)
@@ -148,6 +157,10 @@ for loop in 1 2 3 4 5 6 7 8 9 10; do
   DIFF=$((END - START))
   echo "Q7_ITERQuery_I1_3_IVJ run "$loop " : "$DIFF"s" >>$resultFile
   $stopflink
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_QITER_IVJ_1L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_QITER_IVJ_1L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_QITER_IVJ_1T_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_QITER_IVJ_1T_'$loop'.txt'
   echo "------------ Flink stopped ------------" >>$resultFile
   now=$(date +"%T")
   today=$(date +%d.%m.%y)
@@ -160,6 +173,10 @@ for loop in 1 2 3 4 5 6 7 8 9 10; do
   DIFF=$((END - START))
   echo "Q7_ITERQuery_I2 run "$loop " : "$DIFF"s" >>$resultFile
   $stopflink
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_QITER2L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/SelExp/FOut_QITER2L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_QITER2T_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.log' '/home/ziehn-ldap/SelExp/FOut_QITER2T_'$loop'.txt'
   echo "------------ Flink stopped ------------" >>$resultFile
 done
 echo "Tasks executed"
