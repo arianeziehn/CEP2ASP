@@ -1,5 +1,3 @@
-package Q_SubmissionSigmodVLDB;
-
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.functions.FlatJoinFunction;
 import org.apache.flink.api.java.functions.KeySelector;
