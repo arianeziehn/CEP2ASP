@@ -19,7 +19,7 @@ for loop in 1 2 3 4 5 6 7 8 9 10; do
   echo "Flink start" >>$resultFile
   $startflink
   START=$(date +%s)
-  $flink run -c Q7_ITERPattern_I2 $jar --input $data_path2 --output $output_path --times 3 --tput 87500 --vel 180
+  $flink run -c Q7_ITERPattern_I2 $jar --input $data_path2 --output $output_path --times 3 --tput 112500 --vel 180
   END=$(date +%s)
   DIFF=$((END - START))
   echo "Q7_ITERPattern_I2 run "$loop "--pattern length 3 : "$DIFF"s" >>$resultFile
@@ -52,15 +52,15 @@ for loop in 1 2 3 4 5 6 7 8 9 10; do
   echo "Flink start" >>$resultFile
   $startflink
   START=$(date +%s)
-  $flink run -c Q7_ITERPattern_I2 $jar --input $data_path2 --output $output_path --times 6 --tput 75000 --vel 178
+  $flink run -c Q7_ITERPattern_I2 $jar --input $data_path2 --output $output_path --times 6 --tput 112500 --vel 178
   END=$(date +%s)
   DIFF=$((END - START))
-  echo "Q7_ITERPattern_I2 run "$loop "--pattern length 5 : "$DIFF"s" >>$resultFile
+  echo "Q7_ITERPattern_I2 run "$loop "--pattern length 6 : "$DIFF"s" >>$resultFile
   $stopflink
-  cp '/home/ziehn-ldap/flink-1.11.6_W/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-48.out' '/home/ziehn-ldap/O3Exp/FOut_PITER5L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_W/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-48.out' '/home/ziehn-ldap/O3Exp/FOut_PITER5L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_W/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-48.log' '/home/ziehn-ldap/O3Exp/FOut_PITER5T_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_W/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-48.log' '/home/ziehn-ldap/O3Exp/FOut_PITER5T_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_W/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-48.out' '/home/ziehn-ldap/O3Exp/FOut_PITER6L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_W/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-48.out' '/home/ziehn-ldap/O3Exp/FOut_PITER6L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_W/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-48.log' '/home/ziehn-ldap/O3Exp/FOut_PITER6T_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_W/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-48.log' '/home/ziehn-ldap/O3Exp/FOut_PITER6T_'$loop'.txt'
   echo "------------ Flink stopped ------------" >>$resultFile
   now=$(date +"%T")
   today=$(date +%d.%m.%y)
@@ -73,10 +73,10 @@ for loop in 1 2 3 4 5 6 7 8 9 10; do
   DIFF=$((END - START))
   echo "Q7_ITERQuery_I2 run "$loop "--pattern length 6 : "$DIFF"s" >>$resultFile
   $stopflink
-  cp '/home/ziehn-ldap/flink-1.11.6_W/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-48.out' '/home/ziehn-ldap/O3Exp/FOut_QITER5L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_W/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-48.out' '/home/ziehn-ldap/O3Exp/FOut_QITER5L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_W/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-48.log' '/home/ziehn-ldap/O3Exp/FOut_QITER5T_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_W/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-48.log' '/home/ziehn-ldap/O3Exp/FOut_QITER5T_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_W/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-48.out' '/home/ziehn-ldap/O3Exp/FOut_QITER6L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_W/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-48.out' '/home/ziehn-ldap/O3Exp/FOut_QITER6L_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_W/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-48.log' '/home/ziehn-ldap/O3Exp/FOut_QITER6T_'$loop'.txt'
+  cp '/home/ziehn-ldap/flink-1.11.6_W/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-48.log' '/home/ziehn-ldap/O3Exp/FOut_QITER6T_'$loop'.txt'
   echo "------------ Flink stopped ------------" >>$resultFile
   now=$(date +"%T")
   today=$(date +%d.%m.%y)
@@ -84,7 +84,7 @@ for loop in 1 2 3 4 5 6 7 8 9 10; do
   echo "Flink start" >>$resultFile
   $startflink
   START=$(date +%s)
-  $flink run -c Q7_ITERPattern_I2 $jar --input $data_path2 --output $output_path --times 9 --tput 75000 --vel 174
+  $flink run -c Q7_ITERPattern_I2 $jar --input $data_path2 --output $output_path --times 9 --tput 112500 --vel 174
   END=$(date +%s)
   DIFF=$((END - START))
   echo "Q7_ITERPattern_I2 run "$loop "--pattern length 9 : "$DIFF"s" >>$resultFile
@@ -100,7 +100,7 @@ for loop in 1 2 3 4 5 6 7 8 9 10; do
   echo "Flink start" >>$resultFile
   $startflink
   START=$(date +%s)
-  $flink run -c Q7_ITERQuery_I2 $jar --input $data_path2 --output $output_path --times 9 --tput 110000 --vel 174
+  $flink run -c Q7_ITERQuery_I2 $jar --input $data_path2 --output $output_path --times 9 --tput 112500 --vel 174
   END=$(date +%s)
   DIFF=$((END - START))
   echo "Q7_ITERQuery_I2 run "$loop "--pattern length 9 : "$DIFF"s" >>$resultFile

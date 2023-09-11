@@ -58,7 +58,9 @@ public class QITER_E1_IntervalJoin {
 
         DataStream<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> it3 = it2.keyBy(new UDFs.getKeyT3())
                 .intervalJoin(velStream.keyBy(KeyedDataPointGeneral::getKey))
-                .between(Time.seconds(1), Time.seconds((windowSize*60)-1))
+                .between(Time.minutes(0), Time.minutes(windowSize))
+                .lowerBoundExclusive()
+                .upperBoundExclusive()
                 .process(new ProcessJoinFunction<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>, KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
             @Override
             public void processElement(Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long> d1, KeyedDataPointGeneral d2, ProcessJoinFunction<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>, KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>>.Context context, Collector<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {

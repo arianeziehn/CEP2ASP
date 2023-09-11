@@ -34,9 +34,9 @@ public class Q7_ITERPattern_I2 {
 
         String file = parameters.get("input");
         String outputPath;
-        Integer velFilter = parameters.getInt("vel", 174);
+        Integer velFilter = parameters.getInt("vel", 186);
         Integer windowSize = parameters.getInt("wsize", 15);
-        int iter = parameters.getInt("iter", 9);
+        int iter = parameters.getInt("iter", 3);
         long throughput = parameters.getLong("tput", 100000);
 
         if (!parameters.has("output")) {

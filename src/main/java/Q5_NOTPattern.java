@@ -31,10 +31,11 @@ public class Q5_NOTPattern {
 
         String file = parameters.get("input");
         String file1 = parameters.get("inputAQ");
-        Integer velFilter = parameters.getInt("vel",100);
-        Integer quaFilter = parameters.getInt("qua",75);
-        Integer pm2Filter = parameters.getInt("qua",40);
+        Integer velFilter = parameters.getInt("vel",99);
+        Integer quaFilter = parameters.getInt("qua",71);
+        Integer pm2Filter = parameters.getInt("pm",38);
         Integer windowSize = parameters.getInt("wsize",15);
+        Integer iterations = parameters.getInt("iter",1); // 36 to match 10000000
         String outputPath;
         long throughput = parameters.getLong("tput",100000);
         long tputQnV = 0;
@@ -53,10 +54,10 @@ public class Q5_NOTPattern {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
-        DataStream<KeyedDataPointGeneral> input1 = env.addSource(new KeyedDataPointSourceFunction(file, ",",tputQnV))
+        DataStream<KeyedDataPointGeneral> input1 = env.addSource(new KeyedDataPointSourceFunction(file, iterations,",",tputQnV))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000));
 
-        DataStream<KeyedDataPointGeneral> input2 = env.addSource(new KeyedDataPointSourceFunction(file1, ";",tputPM))
+        DataStream<KeyedDataPointGeneral> input2 = env.addSource(new KeyedDataPointSourceFunction(file1, iterations,";",tputPM))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(180000));
 
         input1.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, tputQnV));
@@ -93,9 +94,8 @@ public class Q5_NOTPattern {
 
         DataStream<Tuple2<KeyedDataPointGeneral,KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple2());
 
-        result.flatMap(new LatencyLoggerT2());
-        result//.print();
-                .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
+        result.flatMap(new LatencyLoggerT2(true));
+        result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 
         JobExecutionResult executionResult = env.execute("My Flink Job");
         System.out.println("The job took " + executionResult.getNetRuntime(TimeUnit.MILLISECONDS) + "ms to execute");

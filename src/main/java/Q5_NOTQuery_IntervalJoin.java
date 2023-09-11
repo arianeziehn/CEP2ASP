@@ -16,6 +16,7 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 import util.*;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -38,10 +39,11 @@ public class Q5_NOTQuery_IntervalJoin {
 
         String file = parameters.get("input");
         String file1 = parameters.get("inputAQ");
-        Integer velFilter = parameters.getInt("vel", 100);
-        Integer quaFilter = parameters.getInt("qua", 75);
-        Integer pm2Filter = parameters.getInt("qua", 40);
+        Integer velFilter = parameters.getInt("vel",99);
+        Integer quaFilter = parameters.getInt("qua",71);
+        Integer pm2Filter = parameters.getInt("pm",38);
         Integer windowSize = parameters.getInt("wsize", 15);
+        Integer iterations = parameters.getInt("iter",1); // 36 to match 10000000
         String outputPath;
         long throughput = parameters.getLong("tput", 0);
         long tputQnV = 0;
@@ -51,7 +53,7 @@ public class Q5_NOTQuery_IntervalJoin {
             tputPM = (long) (throughput * 0.33);
         }
         if (!parameters.has("output")) {
-            outputPath = file.replace(".csv", "_resultQ5_ASP.csv");
+            outputPath = file.replace(".csv", "_resultQ5_ASP_IVJ.csv");
         } else {
             outputPath = parameters.get("output");
         }
@@ -59,113 +61,87 @@ public class Q5_NOTQuery_IntervalJoin {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
-        DataStream<KeyedDataPointGeneral> inputQnV = env.addSource(new KeyedDataPointSourceFunction(file,  ",", tputQnV))
+        DataStream<KeyedDataPointGeneral> inputQnV = env.addSource(new KeyedDataPointSourceFunction(file, iterations, ",", tputQnV))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000));
 
-        DataStream<KeyedDataPointGeneral> inputAQ = env.addSource(new KeyedDataPointSourceFunction(file1, ";", tputPM))
+        DataStream<KeyedDataPointGeneral> inputAQ = env.addSource(new KeyedDataPointSourceFunction(file1, iterations, ";", tputPM))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(180000));
 
         inputQnV.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, tputQnV));
         inputAQ.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, tputPM));
 
-        DataStream<KeyedDataPointGeneral> quaStream = inputQnV.filter(t -> ((Double) t.getValue() > quaFilter && t instanceof QuantityEvent) || (((Double) t.getValue() < velFilter) && t instanceof VelocityEvent));
+        DataStream<Tuple2<KeyedDataPointGeneral, Integer>> quaStream = inputQnV
+                .filter(t -> ((Double) t.getValue() > quaFilter && t instanceof QuantityEvent) || (((Double) t.getValue() < velFilter) && t instanceof VelocityEvent))
+                .map(new UDFs.MapKey());
 
-        DataStream<KeyedDataPointGeneral> PM2Stream = inputAQ.filter(t -> ((Double) t.getValue()) > pm2Filter && t instanceof PartMatter2Event);
+        DataStream<Tuple2<KeyedDataPointGeneral, Integer>> PM2Stream = inputAQ
+                .filter(t -> ((Double) t.getValue()) > pm2Filter && t instanceof PartMatter2Event)
+                .map(new UDFs.MapKey());
 
-        DataStream<Tuple2<KeyedDataPointGeneral, Long>> quaStreamWithNextVelocityEvent = quaStream
-                .keyBy(KeyedDataPointGeneral::getKey)
+        DataStream<Tuple3<KeyedDataPointGeneral, Long, Integer>> quaStreamWithNextVelocityEvent = quaStream
+                .keyBy(new UDFs.getArtificalKey())
                 .window(SlidingEventTimeWindows.of(Time.minutes(windowSize), Time.minutes(1)))
                 // we create a WindowUDF to order the window content and determine the next occurance of a velocity event
-                .apply(new WindowFunction<KeyedDataPointGeneral, Tuple2<KeyedDataPointGeneral, Long>, String, TimeWindow>() {
-                    //final HashSet<KeyedDataPointGeneral> set = new HashSet<KeyedDataPointGeneral>(1000);
+                .apply(new WindowFunction<Tuple2<KeyedDataPointGeneral, Integer>, Tuple3<KeyedDataPointGeneral, Long, Integer>, Integer, TimeWindow>() {
                     @Override
-                    public void apply(String key, TimeWindow timeWindow, Iterable<KeyedDataPointGeneral> iterable, Collector<Tuple2<KeyedDataPointGeneral, Long>> collector) throws Exception {
-                        List<KeyedDataPointGeneral> list = new ArrayList<KeyedDataPointGeneral>();
-                        for (KeyedDataPointGeneral data : iterable) {
+                    public void apply(Integer integer, TimeWindow timeWindow, Iterable<Tuple2<KeyedDataPointGeneral, Integer>> iterable, Collector<Tuple3<KeyedDataPointGeneral, Long, Integer>> collector) throws Exception {
+                        List<Tuple2<KeyedDataPointGeneral, Integer>> list = new ArrayList<Tuple2<KeyedDataPointGeneral, Integer>>();
+                        for (Tuple2<KeyedDataPointGeneral, Integer> data : iterable) {
                             list.add(data);
                         }
                         // sort events by time
-                        list = Ordering.from(new UDFs.TimeComparatorKDG()).sortedCopy(list);
+                        list = Ordering.from(new UDFs.TimeComparator()).sortedCopy(list);
                         //find for each quantity event the next velocity event
-                        for (int i = 0; i < list.size(); i++) {
-                            KeyedDataPointGeneral data = list.get(i);
+                        for (int i = 0; i < list.size(); i++) { // due to the slide by tuple we only check the beginning of the ordered list
+                            Tuple2<KeyedDataPointGeneral, Integer> data = list.get(i);
                             boolean followedBy = false;
-                            if (data instanceof QuantityEvent && (timeWindow.getEnd() - data.getTimeStampMs() >= (timeWindow.getEnd()-timeWindow.getStart()))) {
+                            if (data.f0 instanceof QuantityEvent && (timeWindow.getEnd() - data.f0.getTimeStampMs() >= (timeWindow.getEnd() - timeWindow.getStart()))) {
                                 // we only need to check if the tuple is a relevant QuantityEvent
                                 for (int j = i + 1; j < list.size(); j++) { // then we check all successors
-                                    KeyedDataPointGeneral follow = list.get(j);
-                                    if (follow instanceof VelocityEvent && follow.getTimeStampMs() > data.getTimeStampMs() & (follow.getTimeStampMs() - data.getTimeStampMs() <= Time.minutes(100).toMilliseconds())) {
+                                    Tuple2<KeyedDataPointGeneral, Integer> follow = list.get(j);
+                                    if (follow.f0 instanceof VelocityEvent && follow.f0.getTimeStampMs() > data.f0.getTimeStampMs() & (follow.f0.getTimeStampMs() - data.f0.getTimeStampMs() <= (timeWindow.getEnd() - timeWindow.getStart()))) {
                                         // only successors that are velocity events are of interest
-                                        collector.collect(new Tuple2<KeyedDataPointGeneral, Long>(data, follow.getTimeStampMs()));
-                                        // for each quantity event only the next following velocity event is relevant
+                                        collector.collect(new Tuple3<KeyedDataPointGeneral, Long, Integer>(data.f0, follow.f0.getTimeStampMs(), 1));
+                                        // for each quantity event only the next following velocity event is relevant so we can break here
                                         followedBy = true;
-                                        // set.add(data);
                                         break;
                                     }
                                 }
                                 // also valid if no velocity event occurs at all (i.e., no predicate on the event type)
                                 if (!followedBy) {
-                                    long ts = data.getTimeStampMs() + (timeWindow.getEnd()-timeWindow.getStart());
-                                    collector.collect(new Tuple2<KeyedDataPointGeneral, Long>(data, ts));
+                                    long ts = data.f0.getTimeStampMs() + (timeWindow.getEnd() - timeWindow.getStart());
+                                    collector.collect(new Tuple3<KeyedDataPointGeneral, Long, Integer>(data.f0, ts, 1));
                                 }
-                            } else if (timeWindow.getEnd() - data.getTimeStampMs() < (timeWindow.getEnd()-timeWindow.getStart())) {
+                            } else if (timeWindow.getEnd() - data.f0.getTimeStampMs() < (timeWindow.getEnd() - timeWindow.getStart())) {
                                 break;
                             }
                         }
                         //we need to assign the event timestamp to the new stream again to guarantee the time constraints of the sequence operator
                     }
-                }).assignTimestampsAndWatermarks(new UDFs.ExtractTimestampNOT2(60000));
+                }).assignTimestampsAndWatermarks(new UDFs.ExtractTimestampNOT(60000));
 
         DataStream<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> result = quaStreamWithNextVelocityEvent
-                .keyBy(new KeySelector<Tuple2<KeyedDataPointGeneral, Long>, String>() {
-                    @Override
-                    public String getKey(Tuple2<KeyedDataPointGeneral, Long> data) throws Exception {
-                        return data.f0.getKey();
-                    }
-                }).intervalJoin(PM2Stream.keyBy(KeyedDataPointGeneral::getKey))
-                .between(Time.seconds(1), Time.minutes(windowSize - 1))
-                .process(new ProcessJoinFunction<Tuple2<KeyedDataPointGeneral, Long>, KeyedDataPointGeneral, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
-                    @Override
-                    public void processElement(Tuple2<KeyedDataPointGeneral, Long> d1, KeyedDataPointGeneral d2, ProcessJoinFunction<Tuple2<KeyedDataPointGeneral, Long>, KeyedDataPointGeneral, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>.Context context, Collector<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
-                        // we check if in between the events is no velocity event
-                        if ((d1.f1 >= d2.getTimeStampMs() && d1.f0.getTimeStampMs() < d2.getTimeStampMs())) {
-                            collector.collect(new Tuple2<>(d1.f0, d2));
-                        }
-                    }
-                });
-
-
-        /*.join(PM2Stream)
-                .where(new KeySelector<Tuple3<KeyedDataPointGeneral, Long, Integer>, Integer>() {
+                .keyBy(new KeySelector<Tuple3<KeyedDataPointGeneral, Long, Integer>, Integer>() {
                     @Override
                     public Integer getKey(Tuple3<KeyedDataPointGeneral, Long, Integer> data) throws Exception {
                         return data.f2;
                     }
-                })
-                .equalTo(new UDFs.getArtificalKey())
-                .window(SlidingEventTimeWindows.of(Time.minutes(windowSize), Time.minutes(1)))
-                .apply(new FlatJoinFunction<Tuple3<KeyedDataPointGeneral, Long, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
-                    final HashSet<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> set = new HashSet<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>(1000);
+                }).intervalJoin(PM2Stream.keyBy(new UDFs.getArtificalKey()))
+                .between(Time.minutes(0), Time.minutes(windowSize))
+                .lowerBoundExclusive()
+                .upperBoundExclusive()
+                .process(new ProcessJoinFunction<Tuple3<KeyedDataPointGeneral, Long, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
                     @Override
-                    public void join(Tuple3<KeyedDataPointGeneral, Long, Integer> d1, Tuple2<KeyedDataPointGeneral, Integer> d2, Collector<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
+                    public void processElement(Tuple3<KeyedDataPointGeneral, Long, Integer> d1, Tuple2<KeyedDataPointGeneral, Integer> d2, ProcessJoinFunction<Tuple3<KeyedDataPointGeneral, Long, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>.Context context, Collector<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
                         // we check if in between the events is no velocity event
                         if ((d1.f1 >= d2.f0.getTimeStampMs() && d1.f0.getTimeStampMs() < d2.f0.getTimeStampMs())) {
-                            Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral> result = new Tuple2<>(d1.f0, d2.f0);
-                            if (!set.contains(result)) {
-                                if (set.size() == 1000) {
-                                    set.removeAll(set);
-                                    // to maintain the HashSet Size we flush after 1000 entries
-                                }
-                                collector.collect(result);
-                                set.add(result);
-                            }
+                            collector.collect(new Tuple2<>(d1.f0, d2.f0));
                         }
                     }
-                });*/
+                });
 
-        result.flatMap(new LatencyLoggerT2());
-        result //.print();
-                .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
+        result.flatMap(new LatencyLoggerT2(true));
+        result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 
         JobExecutionResult executionResult = env.execute("My FlinkASP Job");
         System.out.println("The job took " + executionResult.getNetRuntime(TimeUnit.MILLISECONDS) + "ms to execute");

@@ -14,6 +14,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import util.*;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -32,9 +33,9 @@ public class Q6_ITERPattern_I1 {
 
         String file = parameters.get("input");
         String outputPath;
-        Integer velFilter = parameters.getInt("vel", 179);
+        Integer velFilter = parameters.getInt("vel", 156);
         Integer windowSize = parameters.getInt("wsize", 15);
-        int times = parameters.getInt("times", 5);
+        int times = parameters.getInt("times", 9);
         long throughput = parameters.getLong("tput", 100000);
 
         if (!parameters.has("output")) {

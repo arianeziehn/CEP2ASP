@@ -120,7 +120,9 @@ public class QNSEQ_E1_IntervalJoin {
                         return data.f0.getKey();
                     }
                 }).intervalJoin(PM10Stream.keyBy(KeyedDataPointGeneral::getKey))
-                .between(Time.seconds(1), Time.minutes(windowSize - 1))
+                .between(Time.minutes(0), Time.minutes(windowSize))
+                .lowerBoundExclusive()
+                .upperBoundExclusive()
                 .process(new ProcessJoinFunction<Tuple2<KeyedDataPointGeneral, Long>, KeyedDataPointGeneral, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
                     @Override
                     public void processElement(Tuple2<KeyedDataPointGeneral, Long> d1, KeyedDataPointGeneral d2, ProcessJoinFunction<Tuple2<KeyedDataPointGeneral, Long>, KeyedDataPointGeneral, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>.Context context, Collector<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {

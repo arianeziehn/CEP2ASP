@@ -37,7 +37,7 @@ public class Q1_SEQQuery_IntervalJoin {
 
         String outputPath;
         if (!parameters.has("output")) {
-            outputPath = file.replace(".csv", "_resultQ1_ASP.csv");
+            outputPath = file.replace(".csv", "_resultQ1_ASP_IVJ.csv");
         } else {
             outputPath = parameters.get("output");
         }
@@ -59,7 +59,9 @@ public class Q1_SEQQuery_IntervalJoin {
 
         DataStream<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> result = velStream.keyBy(new UDFs.getArtificalKey())
                 .intervalJoin(quaStream.keyBy(new UDFs.getArtificalKey()))
-                .between(Time.seconds(1), Time.seconds((windowSize * 60) - 1))
+                .between(Time.minutes(0), Time.minutes(windowSize))
+                .lowerBoundExclusive()
+                .upperBoundExclusive()
                 .process(new ProcessJoinFunction<Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
 
                     @Override
