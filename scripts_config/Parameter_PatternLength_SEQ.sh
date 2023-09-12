@@ -40,7 +40,7 @@ for loop in 1 2 3 4 5 6 7 8 9 10; do
   echo "Flink start" >>$resultFile
   $startflink
   START=$(date +%s)
-  $flink run -c Q9_SEQQuery_2 $jar --inputQnV $data_path1 --output $output_path --vel 107 --qua 107 --iter 28 --tput 105000
+  $flink run -c Q9_SEQQuery_2 $jar --inputQnV $data_path1 --output $output_path --vel 107 --qua 107 --iter 28 --tput 110000
   END=$(date +%s)
   DIFF=$((END - START))
   echo "Q9_SEQQueryLength2 run "$loop "--pattern length 2 : "$DIFF"s" >>$resultFile
@@ -56,7 +56,7 @@ for loop in 1 2 3 4 5 6 7 8 9 10; do
   echo "Flink start" >>$resultFile
   $startflink
   START=$(date +%s)
-  $flink run -c Q9_SEQQuery_IVJ_2 $jar --inputQnV $data_path1 --output $output_path --vel 107 --qua 107 --iter 28 --tput 105000
+  $flink run -c Q9_SEQQuery_IVJ_2 $jar --inputQnV $data_path1 --output $output_path --vel 107 --qua 107 --iter 28 --tput 110000
   END=$(date +%s)
   DIFF=$((END - START))
   echo "Q9_SEQQueryIVJLength2 run "$loop "--pattern length 2 : "$DIFF"s" >>$resultFile
