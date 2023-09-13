@@ -15,7 +15,7 @@ import util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Run with these parameters:
+* Run with these parameters:
  * --input ./src/main/resources/QnV_R2000070.csv
  */
 
@@ -29,7 +29,7 @@ public class Q8_SEQPatternLS {
         }
 
         String file = parameters.get("input");
-        Integer sensors = parameters.getInt("sensors",3);
+        Integer sensors = parameters.getInt("sensors",16);
         Integer velFilter = parameters.getInt("vel", 100);
         Integer quaFilter = parameters.getInt("qua", 110);
         Integer windowsize = parameters.getInt("wsize",2);
@@ -51,30 +51,29 @@ public class Q8_SEQPatternLS {
 
         input = input.assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp()).keyBy(KeyedDataPointGeneral::getKey);
 
-        Pattern<KeyedDataPointGeneral, ?> pattern = Pattern.<KeyedDataPointGeneral>begin("first").subtype(VelocityEvent.class)
-                .where(
-                        new SimpleCondition<VelocityEvent>() {
-                            @Override
-                            public boolean filter(VelocityEvent event1) {
-                                Double velocity = (Double) event1.getValue();
-                                return velocity > velFilter;
-                            }
-                        }).followedByAny("next").subtype(QuantityEvent.class).where(
-                        new SimpleCondition<QuantityEvent>() {
-                            @Override
-                            public boolean filter(QuantityEvent event2) throws Exception {
-                                Double quantity = (Double) event2.getValue();
-                                return quantity > quaFilter;
-                            }
-                        }
-                ).within(Time.minutes(windowsize));
+         Pattern<KeyedDataPointGeneral, ?> pattern = Pattern.<KeyedDataPointGeneral>begin("first").subtype(VelocityEvent.class)
+                 .where(
+                new SimpleCondition<VelocityEvent>() {
+                    @Override
+                    public boolean filter(VelocityEvent event1) {
+                        Double velocity = (Double) event1.getValue();
+                        return velocity > velFilter;
+                    }
+                }).followedByAny("next").subtype(QuantityEvent.class).where(
+                new SimpleCondition<QuantityEvent>() {
+                    @Override
+                    public boolean filter(QuantityEvent event2) throws Exception {
+                        Double quantity = (Double) event2.getValue();
+                        return quantity > quaFilter;
+                    }
+                }
+        ).within(Time.minutes(windowsize));
 
         PatternStream<KeyedDataPointGeneral> patternStream = CEP.pattern(input, pattern);
 
         DataStream<Tuple2<KeyedDataPointGeneral,KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple2());
 
-        result.flatMap(new LatencyLoggerT2(true));
-
+        result.flatMap(new LatencyLoggerT2());
         result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 
         //System.out.println(env.getExecutionPlan());

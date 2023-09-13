@@ -29,7 +29,7 @@ public class Q8_SEQQueryLS {
         }
 
         String file = parameters.get("input");
-        Integer sensors = parameters.getInt("sensors",3);
+        Integer sensors = parameters.getInt("sensors",16);
         Integer velFilter = parameters.getInt("vel", 100);
         Integer quaFilter = parameters.getInt("qua", 110);
         Integer windowsize = parameters.getInt("wsize",2);
@@ -37,7 +37,7 @@ public class Q8_SEQQueryLS {
 
         String outputPath;
         if (!parameters.has("output")) {
-            outputPath = file.replace(".csv", "_resultQ8_ASP_LargeScale.csv");
+            outputPath = file.replace(".csv", "_resultQ8_IVJ_ASP_LargeScale.csv");
         } else {
             outputPath = parameters.get("output");
         }
@@ -67,7 +67,7 @@ public class Q8_SEQQueryLS {
                     @Override
                     public void join(KeyedDataPointGeneral d1, KeyedDataPointGeneral d2, Collector<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
                         if(d1.getTimeStampMs() < d2.getTimeStampMs()){
-                            Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral> result = new Tuple2<>(d1,d2);
+                            Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral> result = new Tuple2<>(d1, d2);
                             if (!set.contains(result)) {
                                 if (set.size() == 1000) {
                                     set.removeAll(set);
@@ -80,9 +80,8 @@ public class Q8_SEQQueryLS {
                     }
                 });
 
-        joinedStream.flatMap(new LatencyLoggerT2(true));
-        joinedStream//.print();
-                .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
+        joinedStream.flatMap(new LatencyLoggerT2());
+        joinedStream.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 
         //System.out.println(env.getExecutionPlan());
         JobExecutionResult executionResult = env.execute("My Flink Job");

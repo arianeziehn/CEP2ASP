@@ -17,7 +17,7 @@ public class KeyedDataPointParallelSourceFunction extends RichParallelSourceFunc
     private String delimiter = ",";
     private boolean manipulateIngestionRate = false;
     private long throughput;
-    private int runtime = 20;
+    private int runtime = 40;
 
     public KeyedDataPointParallelSourceFunction(String fileName) {
         this.file = fileName;
@@ -66,10 +66,11 @@ public class KeyedDataPointParallelSourceFunction extends RichParallelSourceFunc
 
     }
 
-    public KeyedDataPointParallelSourceFunction(String fileName, Integer loops, String delimiter, long throughput) {
+    public KeyedDataPointParallelSourceFunction(String fileName, Integer sensors, String delimiter, long throughput) {
         this.file = fileName;
         this.key = null;
-        this.sourceLoops = loops;
+        this.sensors = sensors;
+        this.sourceLoops = 1;
         this.delimiter = delimiter;
         this.throughput = throughput;
         if (throughput == 0) {
@@ -177,6 +178,7 @@ public class KeyedDataPointParallelSourceFunction extends RichParallelSourceFunc
                         }
                     } else {
                         System.out.println("TODO");
+                        run = false;
                     }
 
                 } else {

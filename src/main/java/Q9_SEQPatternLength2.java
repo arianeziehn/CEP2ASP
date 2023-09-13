@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Run with these parameters:
- * --input ./src/main/resources/QnV_R2000070.csv
+ * --inputQnV ./src/main/resources/QnV_R2000070.csv
  */
 public class Q9_SEQPatternLength2 {
     public static void main(String[] args) throws Exception {
@@ -27,9 +27,9 @@ public class Q9_SEQPatternLength2 {
         if (!parameters.has("inputQnV")) {
             throw new Exception("Input Data is not specified");
         }
-        String file = parameters.get("input");
-        Integer velFilter = parameters.getInt("vel", 115);
-        Integer quaFilter = parameters.getInt("qua", 105);
+        String file = parameters.get("inputQnV");
+        Integer velFilter = parameters.getInt("vel", 107);
+        Integer quaFilter = parameters.getInt("qua", 107);
         Integer windowSize = parameters.getInt("wsize", 15);
         long throughput = parameters.getLong("tput", 100000);
         Integer iterations = parameters.getInt("iter", 1); // 28 to match 10000000

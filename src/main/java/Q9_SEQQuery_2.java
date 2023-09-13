@@ -1,5 +1,3 @@
-package Q_SubmissionSigmodVLDB;
-
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.functions.FlatJoinFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -13,31 +11,33 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 import util.*;
 
+import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Run with these parameters:
- * --input ./src/main/resources/QnV.csv
+ * --inputQnV ./src/main/resources/QnV_R2000070.csv
  */
 
-public class Q1_SEQQuery {
+public class Q9_SEQQuery_2 {
     public static void main(String[] args) throws Exception {
 
         final ParameterTool parameters = ParameterTool.fromArgs(args);
         // Checking input parameters
-        if (!parameters.has("input")) {
+        if (!parameters.has("inputQnV")) {
             throw new Exception("Input Data is not specified");
         }
 
-        String file = parameters.get("input");
-        Integer velFilter = parameters.getInt("vel",175);
-        Integer quaFilter = parameters.getInt("qua",250);
-        Integer windowSize = parameters.getInt("wsize",15);
-        long throughput = parameters.getLong("tput",100000);
-
+        String file = parameters.get("inputQnV");
+        Integer iterations = parameters.getInt("iter", 1); // 28 to match 10000000
+        Integer velFilter = parameters.getInt("vel", 107);
+        Integer quaFilter = parameters.getInt("qua", 107);
+        Integer windowSize = parameters.getInt("wsize", 15);
+        long throughput = parameters.getLong("tput", 100000);
         String outputPath;
+
         if (!parameters.has("output")) {
-            outputPath = file.replace(".csv", "_resultQ1_ASP.csv");
+            outputPath = file.replace(".csv", "_resultQ9_ASP2.csv");
         } else {
             outputPath = parameters.get("output");
         }
@@ -45,39 +45,46 @@ public class Q1_SEQQuery {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
-        DataStream<KeyedDataPointGeneral> input = env.addSource(new KeyedDataPointSourceFunction(file, throughput));
+        DataStream<KeyedDataPointGeneral> input1 = env.addSource(new KeyedDataPointSourceFunction(file, iterations, ",", throughput))
+                .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000));
 
-        input.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, throughput));
+        input1.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, throughput));
 
-        DataStream<Tuple2<KeyedDataPointGeneral, Integer>> stream = input
-                .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000))
+        DataStream<Tuple2<KeyedDataPointGeneral, Integer>> velStream = input1
+                .filter(t -> ((Double) t.getValue()) >= velFilter && (t instanceof VelocityEvent))
                 .map(new UDFs.MapKey());
 
-        DataStream<Tuple2<KeyedDataPointGeneral, Integer>> velStream = stream.filter(t -> ((Double) t.f0.getValue()) > velFilter && (t.f0 instanceof VelocityEvent));
+        DataStream<Tuple2<KeyedDataPointGeneral, Integer>> quaStream = input1
+                .filter(t -> ((Double) t.getValue()) >= quaFilter && t instanceof QuantityEvent)
+                .map(new UDFs.MapKey());
 
-
-        DataStream<Tuple2<KeyedDataPointGeneral, Integer>> quaStream = stream.filter(t -> ((Double) t.f0.getValue()) > quaFilter && t.f0 instanceof QuantityEvent);
 
         DataStream<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> result = velStream.join(quaStream)
                 .where(new UDFs.getArtificalKey())
                 .equalTo(new UDFs.getArtificalKey())
                 .window(SlidingEventTimeWindows.of(Time.minutes(windowSize), Time.minutes(1)))
                 .apply(new FlatJoinFunction<Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
+                    final HashSet<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> set = new HashSet<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>(1000);
                     @Override
                     public void join(Tuple2<KeyedDataPointGeneral, Integer> d1, Tuple2<KeyedDataPointGeneral, Integer> d2, Collector<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
-                        // we apply the temporal filter in the FlatJoinfunction, other system may not allow to modify the join output and require the filter after the join
-                        if (d1.f0.getTimeStampMs() < d2.f0.getTimeStampMs()) { // a sequence by definition requires <, to match FlinkCEP use <= here
-                            double distance = UDFs.checkDistance(d1.f0, d2.f0);
-                            if (distance < 10.0) collector.collect(new Tuple2<>(d1.f0, d2.f0));
+                        if (d1.f0.getTimeStampMs() < d2.f0.getTimeStampMs()) {
+                            Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral> result = new Tuple2<>(d1.f0, d2.f0);
+                            if (!set.contains(result)) {
+                                if (set.size() == 1000) {
+                                    set.removeAll(set);
+                                    // to maintain the HashSet Size we flush after 1000 entries
+                                }
+                                collector.collect(result);
+                                set.add(result);
+                            }
                         }
                     }
                 });
 
-        result //.print();
-                .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
+        result.flatMap(new LatencyLoggerT2(true));
+        result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 
         JobExecutionResult executionResult = env.execute("My FlinkASP Job");
         System.out.println("The job took " + executionResult.getNetRuntime(TimeUnit.MILLISECONDS) + "ms to execute");
     }
-
 }
