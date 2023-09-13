@@ -45,12 +45,7 @@ public class Q5_NOTQuery {
         Integer iterations = parameters.getInt("iter",1); // 36 to match 10000000
         String outputPath;
         long throughput = parameters.getLong("tput", 0);
-        long tputQnV = 0;
-        long tputPM = 0;
-        if (throughput > 0) {
-            tputQnV = (long) (throughput * 0.67);
-            tputPM = (long) (throughput * 0.33);
-        }
+
         if (!parameters.has("output")) {
             outputPath = file.replace(".csv", "_resultQ5_ASP.csv");
         } else {
@@ -60,14 +55,14 @@ public class Q5_NOTQuery {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
-        DataStream<KeyedDataPointGeneral> inputQnV = env.addSource(new KeyedDataPointSourceFunction(file, iterations, ",", tputQnV))
+        DataStream<KeyedDataPointGeneral> inputQnV = env.addSource(new KeyedDataPointSourceFunction(file, iterations, ",", throughput))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000));
 
-        DataStream<KeyedDataPointGeneral> inputAQ = env.addSource(new KeyedDataPointSourceFunction(file1, iterations, ";", tputPM))
+        DataStream<KeyedDataPointGeneral> inputAQ = env.addSource(new KeyedDataPointSourceFunction(file1, iterations, ";", throughput))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(180000));
 
-        inputQnV.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, tputQnV));
-        inputAQ.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, tputPM));
+        inputQnV.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, throughput));
+        inputAQ.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, throughput));
 
         DataStream<Tuple2<KeyedDataPointGeneral, Integer>> quaStream = inputQnV
                 .filter(t -> ((Double) t.getValue() > quaFilter && t instanceof QuantityEvent) || (((Double) t.getValue() < velFilter) && t instanceof VelocityEvent))

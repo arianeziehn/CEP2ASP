@@ -38,12 +38,6 @@ public class Q5_NOTPattern {
         Integer iterations = parameters.getInt("iter",1); // 36 to match 10000000
         String outputPath;
         long throughput = parameters.getLong("tput",100000);
-        long tputQnV = 0;
-        long tputPM = 0;
-        if(throughput > 0){
-            tputQnV = (long) (throughput*0.67);
-            tputPM = (long) (throughput*0.33);
-        }
 
         if (!parameters.has("output")) {
             outputPath = file.replace(".csv", "_resultQ5_CEP.csv");
@@ -54,14 +48,14 @@ public class Q5_NOTPattern {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
-        DataStream<KeyedDataPointGeneral> input1 = env.addSource(new KeyedDataPointSourceFunction(file, iterations,",",tputQnV))
+        DataStream<KeyedDataPointGeneral> input1 = env.addSource(new KeyedDataPointSourceFunction(file, iterations,",",throughput))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000));
 
-        DataStream<KeyedDataPointGeneral> input2 = env.addSource(new KeyedDataPointSourceFunction(file1, iterations,";",tputPM))
+        DataStream<KeyedDataPointGeneral> input2 = env.addSource(new KeyedDataPointSourceFunction(file1, iterations,";",throughput))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(180000));
 
-        input1.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, tputQnV));
-        input2.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, tputPM));
+        input1.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, throughput));
+        input2.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, throughput));
 
         DataStream<KeyedDataPointGeneral> input = input1.union(input2);
 

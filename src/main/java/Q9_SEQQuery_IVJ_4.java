@@ -43,8 +43,6 @@ public class Q9_SEQQuery_IVJ_4 {
         Integer pm2Filter = parameters.getInt("pms", 15);
         Integer pm10Filter = parameters.getInt("pmb", 5);
         long throughput = parameters.getLong("tput", 100000);
-        long tputQnV = (long) (throughput * 0.75);
-        long tputPM = (long) (throughput * 0.25);
 
         if (!parameters.has("output")) {
             outputPath = file.replace(".csv", "_resultQ9_ASP4_IVJ.csv");
@@ -55,14 +53,14 @@ public class Q9_SEQQuery_IVJ_4 {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
-        DataStream<KeyedDataPointGeneral> input1 = env.addSource(new KeyedDataPointSourceFunction(file, iterations, ",", tputQnV))
+        DataStream<KeyedDataPointGeneral> input1 = env.addSource(new KeyedDataPointSourceFunction(file, iterations, ",", throughput))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000));
 
-        DataStream<KeyedDataPointGeneral> input2 = env.addSource(new KeyedDataPointSourceFunction(file1, iterations, ";", tputPM))
+        DataStream<KeyedDataPointGeneral> input2 = env.addSource(new KeyedDataPointSourceFunction(file1, iterations, ";", throughput))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(180000));
 
-        input1.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, tputQnV));
-        input2.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, tputPM));
+        input1.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, throughput));
+        input2.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, throughput));
 
 
         DataStream<Tuple2<KeyedDataPointGeneral, Integer>> velStream = input1

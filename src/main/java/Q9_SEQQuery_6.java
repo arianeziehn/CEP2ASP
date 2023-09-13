@@ -42,9 +42,6 @@ public class Q9_SEQQuery_6 {
         Integer pm10Filter = parameters.getInt("pmb", 27);
         Integer tempFilter = parameters.getInt("temp", 17);
         Integer humFilter = parameters.getInt("hum", 45);
-        long tputQnV = (long) (throughput * 0.6);
-        long tputPM = (long) (throughput * 0.19);
-        long tputLD = (long) (throughput * 0.21);
 
         if (!parameters.has("output")) {
             outputPath = file.replace(".csv", "_resultQ7_ASP.csv");
@@ -55,18 +52,18 @@ public class Q9_SEQQuery_6 {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
-        DataStream<KeyedDataPointGeneral> input1 = env.addSource(new KeyedDataPointSourceFunction(file, iterations, ",", tputQnV))
+        DataStream<KeyedDataPointGeneral> input1 = env.addSource(new KeyedDataPointSourceFunction(file, iterations, ",", throughput))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000));
 
-        DataStream<KeyedDataPointGeneral> input2 = env.addSource(new KeyedDataPointSourceFunction(file1, iterations, ";", tputPM))
+        DataStream<KeyedDataPointGeneral> input2 = env.addSource(new KeyedDataPointSourceFunction(file1, iterations, ";", throughput))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(180000));
 
-        DataStream<KeyedDataPointGeneral> input3 = env.addSource(new KeyedDataPointSourceFunction(file2, iterations, ";", tputLD))
+        DataStream<KeyedDataPointGeneral> input3 = env.addSource(new KeyedDataPointSourceFunction(file2, iterations, ";", throughput))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(180000));
 
-        input1.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, tputQnV));
-        input2.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, tputPM));
-        input3.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, tputLD));
+        input1.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, throughput));
+        input2.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, throughput));
+        input3.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, throughput));
 
 
         DataStream<Tuple2<KeyedDataPointGeneral, Integer>> velStream = input1
