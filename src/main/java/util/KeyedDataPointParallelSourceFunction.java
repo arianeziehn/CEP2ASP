@@ -17,7 +17,7 @@ public class KeyedDataPointParallelSourceFunction extends RichParallelSourceFunc
     private String delimiter = ",";
     private boolean manipulateIngestionRate = false;
     private long throughput;
-    private int runtime = 40;
+    private int runtime = 30;
 
     public KeyedDataPointParallelSourceFunction(String fileName) {
         this.file = fileName;
@@ -139,11 +139,12 @@ public class KeyedDataPointParallelSourceFunction extends RichParallelSourceFunc
                     id = data[0].trim();
                 else id = this.key;
 
-                if (data.length == 4) {
+                if (data.length == 4 && data[0].equals("R2000070")) {
                     // parse QnV
                     // time
                     if (this.sourceLoops == 1 || loopCount == 1) {
-                        millisSinceEpoch = Long.parseLong(data[1]);
+                        millisSinceEpoch = Long.parseLong(data[1])*1000;
+                        //millisSinceEpoch = Long.parseLong(data[1]);
                     } else {
                         this.currentTime += 60000;
                         millisSinceEpoch = this.currentTime;
@@ -181,8 +182,53 @@ public class KeyedDataPointParallelSourceFunction extends RichParallelSourceFunc
                         run = false;
                     }
 
+                } else if (data.length == 10 && data[1].equals("SDS011")) {
+                    // parse SDS011
+                    // point
+                    float latitude = Float.parseFloat(data[3].trim());
+                    float longitude = Float.parseFloat(data[4].trim());
+
+                    if (this.sourceLoops == 1 || loopCount == 1) {
+
+                        millisSinceEpoch = Long.parseLong(data[5])*1000;
+                        /**System.out.println("Before formatting: " + data[5]);
+                        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                        LocalDateTime timestampDT = LocalDateTime.parse(data[5].trim().replace("T", " "), dtf);
+                        //System.out.println("after formatting: " + timestampDT);
+                        millisSinceEpoch = timestampDT.atZone(ZoneId.systemDefault())
+                                .toInstant().toEpochMilli();*/
+
+                        // System.out.println(new Date(millisSinceEpoch));
+                    } else {
+                        this.currentTime += (Math.floor(Math.random() * (6 - 3) + 3)) * 60000;
+                        millisSinceEpoch = this.currentTime;
+                    }
+
+                    double p10 = Double.parseDouble(data[6].trim());
+                    double p2 = Double.parseDouble(data[9].trim());
+
+                    int maxPara = this.getRuntimeContext().getNumberOfParallelSubtasks();
+                    if (this.sensors >= maxPara) {
+                        for (int i = 0; i < (this.sensors / maxPara); i++) {
+
+                            KeyedDataPointGeneral P1Event = new PartMatter10Event(Integer.toString((this.getRuntimeContext().getIndexOfThisSubtask() + (maxPara * i))),
+                                    millisSinceEpoch, p10, longitude, latitude);
+
+                            sourceContext.collect(P1Event);
+                            tupleCounter++;
+
+                            KeyedDataPointGeneral P2Event = new PartMatter2Event(Integer.toString((this.getRuntimeContext().getIndexOfThisSubtask() + (maxPara * i))),
+                                    millisSinceEpoch, p2, longitude, latitude);
+
+                            sourceContext.collect(P2Event);
+                            tupleCounter++;
+                        }
+                    } else {
+                        System.out.println("TODO");
+                        run = false;
+                    }
                 } else {
-                    System.out.println(rawData + ": Unkown Datatype of length " + data.length);
+                   // System.out.println(rawData + ": Unkown Datatype of length " + data.length);
                 }
 
                 if (!scan.hasNext() && loopCount < this.sourceLoops) {

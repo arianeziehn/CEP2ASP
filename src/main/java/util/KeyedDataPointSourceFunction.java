@@ -277,7 +277,7 @@ public class KeyedDataPointSourceFunction implements SourceFunction<KeyedDataPoi
                     tupleCounter++;
 
                 } else {
-                    System.out.println(rawData + ": Unkown Datatype of length " + data.length);
+                    //System.out.println(rawData + ": Unkown Datatype of length " + data.length);
                 }
 
                 if (!scan.hasNext() && loopCount < this.sourceLoops) {
