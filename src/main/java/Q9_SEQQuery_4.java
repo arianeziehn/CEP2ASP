@@ -149,7 +149,7 @@ public class Q9_SEQQuery_4 {
                             }
                         }
                     })
-                    .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp3KeyedDataPointGeneralLongInt());
+                    .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp3KeyedDataPointGeneralLongInt(60000));
 
             DataStream<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> seq4 = seq3.join(pm10Stream)
                     .where(new UDFs.getArtificalKeyT5())

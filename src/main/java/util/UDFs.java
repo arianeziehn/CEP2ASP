@@ -79,6 +79,13 @@ public class UDFs {
         }
     }
 
+    public static class MapCount_keyed implements MapFunction<KeyedDataPointGeneral, Tuple2<KeyedDataPointGeneral, Integer>> {
+        @Override
+        public Tuple2<KeyedDataPointGeneral, Integer> map(KeyedDataPointGeneral dp) throws Exception {
+            return new Tuple2<KeyedDataPointGeneral, Integer>(dp, 1);
+        }
+    }
+
     public static class GetResultTuple implements PatternFlatSelectFunction<KeyedDataPointGeneral, String> {
         @Override
         public void flatSelect(Map<String, List<KeyedDataPointGeneral>> map, Collector<String> collector) throws Exception {
@@ -94,7 +101,7 @@ public class UDFs {
                 KeyedDataPointGeneral d2 = map.get("second").get(0);
                 KeyedDataPointGeneral d3 = map.get("third").get(0);
                 collector.collect(new Tuple3<>(d1, d2, d3));
-            } else if (map.get("first").size() == 2) { // get result of iteration pattern
+            } else if (map.get("first").size() == 3) { // get result of iteration pattern
                 KeyedDataPointGeneral d1 = map.get("first").get(0);
                 KeyedDataPointGeneral d2 = map.get("first").get(1);
                 KeyedDataPointGeneral d3 = map.get("first").get(2);
@@ -273,6 +280,34 @@ public class UDFs {
 
         @Override
         public long extractTimestamp(Tuple3<KeyedDataPointGeneral, Integer, Integer> element, long l) {
+            long timestamp = element.f0.getTimeStampMs();
+            currentMaxTimestamp = Math.max(timestamp, currentMaxTimestamp);
+            return timestamp;
+        }
+    }
+
+    public static class ExtractTimestampKeyedDataPointGeneral1Int implements AssignerWithPeriodicWatermarks<Tuple2<KeyedDataPointGeneral, Integer>> {
+        private static final long serialVersionUID = 1L;
+        private long maxOutOfOrderness;
+
+        private long currentMaxTimestamp;
+
+        public ExtractTimestampKeyedDataPointGeneral1Int() {
+            this.maxOutOfOrderness = 0;
+        }
+
+        public ExtractTimestampKeyedDataPointGeneral1Int(long periodMs) {
+            this.maxOutOfOrderness = (periodMs);
+        }
+
+        @Nullable
+        @Override
+        public Watermark getCurrentWatermark() {
+            return new Watermark(currentMaxTimestamp - maxOutOfOrderness);
+        }
+
+        @Override
+        public long extractTimestamp(Tuple2<KeyedDataPointGeneral, Integer> element, long l) {
             long timestamp = element.f0.getTimeStampMs();
             currentMaxTimestamp = Math.max(timestamp, currentMaxTimestamp);
             return timestamp;

@@ -132,7 +132,7 @@ public class Q9_SEQQuery_IVJ_4 {
                                 collector.collect(new Tuple5<>(d1.f0, d1.f1, d2.f0, d1.f2, 1));
                             }
                         }
-                    }).assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp3KeyedDataPointGeneralLongInt());
+                    }).assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp3KeyedDataPointGeneralLongInt(60000));
 
             DataStream<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> seq4 = seq3.keyBy(new UDFs.getArtificalKeyT5())
                     .intervalJoin(pm10Stream.keyBy(new UDFs.getArtificalKey()))
