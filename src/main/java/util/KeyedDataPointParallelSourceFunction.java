@@ -143,8 +143,11 @@ public class KeyedDataPointParallelSourceFunction extends RichParallelSourceFunc
                     // parse QnV
                     // time
                     if (this.sourceLoops == 1 || loopCount == 1) {
-                        millisSinceEpoch = Long.parseLong(data[1])*1000;
-                        //millisSinceEpoch = Long.parseLong(data[1]);
+                        if(data[1].length()== 9){
+                            millisSinceEpoch = Long.parseLong(data[1])*1000;
+                        }else{
+                            millisSinceEpoch = Long.parseLong(data[1]);
+                        }
                     } else {
                         this.currentTime += 60000;
                         millisSinceEpoch = this.currentTime;

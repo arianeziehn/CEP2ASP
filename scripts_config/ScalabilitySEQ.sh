@@ -3,8 +3,8 @@ startflink='/home/ziehn-ldap/flink-1.11.6_W/bin/start-cluster.sh'
 stopflink='/home/ziehn-ldap/flink-1.11.6_W/bin/stop-cluster.sh'
 flink='/home/ziehn-ldap/flink-1.11.6_W/bin/flink'
 jar='/home/ziehn-ldap/flink-cep-1.0-SNAPSHOT_W.jar'
-output_path='/home/ziehn-ldap/result'
-resultFile='/home/ziehn-ldap/CollectEchoW.txt'
+output_path='/home/ziehn-ldap/resultW'
+resultFile='/home/ziehn-ldap/CollectEchoScal.txt'
 data_path5='/home/ziehn-ldap/QnV_R2000070_integrated.csv'
 data_path6='/home/ziehn-ldap/luftdaten_11245_integrated.csv'
 
@@ -25,7 +25,7 @@ for loop in 1 2 3; do
     echo "Flink start" >>$resultFile
     $startflink
     START=$(date +%s)
-    $flink run -p 8 -c Q10_SEQ3PatternLS $jar --inputQnV $data_path5 --inputPM $data_path6 --output $output_path --sensors 8 --vel 78 --qua 67 --pmb 64 --tput 200000
+    $flink run -p 8 -c Q10_SEQ3PatternLS $jar --inputQnV $data_path5 --inputPM $data_path6 --output $output_path --sensors 8 --vel 78 --qua 67 --pmb 64 --tput 50000
     END=$(date +%s)
     DIFF=$((END - START))
     echo "Q10_SEQ3PatternLS run "$loop "--sensors 8:"$DIFF"s" >>$resultFile
@@ -41,7 +41,7 @@ for loop in 1 2 3; do
     echo "Flink start" >>$resultFile
     $startflink
     START=$(date +%s)
-    $flink run -p 8 -c Q10_SEQ3QueryLS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 8 --vel 78 --qua 67 --pmb 64 --tput 225000
+    $flink run -p 8 -c Q10_SEQ3QueryLS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 8 --vel 78 --qua 67 --pmb 64 --tput 165000
     END=$(date +%s)
     DIFF=$((END - START))
     echo "Q10_SEQ3QueryLS run "$loop "--sensors 8:"$DIFF"s" >>$resultFile
@@ -57,7 +57,7 @@ for loop in 1 2 3; do
     echo "Flink start" >>$resultFile
     $startflink
     START=$(date +%s)
-    $flink run -p 8 -c Q10_SEQ3Query_IVJ_LS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 8 --vel 78 --qua 67 --pmb 64 --tput 225000
+    $flink run -p 8 -c Q10_SEQ3Query_IVJ_LS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 8 --vel 78 --qua 67 --pmb 64 --tput 75000
     END=$(date +%s)
     DIFF=$((END - START))
     echo "Q10_SEQ3Query_IVJ_LS run "$loop "--sensors 8:"$DIFF"s" >>$resultFile
@@ -73,7 +73,7 @@ for loop in 1 2 3; do
     echo "Flink start" >>$resultFile
     $startflink
     START=$(date +%s)
-    $flink run -c Q10_SEQ3PatternLS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 16 --vel 78 --qua 67 --pmb 64 --tput 250000
+    $flink run -c Q10_SEQ3PatternLS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 16 --vel 78 --qua 67 --pmb 64 --tput 35000
     END=$(date +%s)
     DIFF=$((END - START))
     echo "Q10_SEQ3PatternLS run "$loop "--sensors 16:"$DIFF"s" >>$resultFile
@@ -89,7 +89,7 @@ for loop in 1 2 3; do
     echo "Flink start" >>$resultFile
     $startflink
     START=$(date +%s)
-    $flink run -c Q10_SEQ3QueryLS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 16 --vel 78 --qua 67 --pmb 64 --tput 250000
+    $flink run -c Q10_SEQ3QueryLS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 16 --vel 78 --qua 67 --pmb 64 --tput 75000
     END=$(date +%s)
     DIFF=$((END - START))
     echo "Q10_SEQ3QueryLS run "$loop "--sensors 16:"$DIFF"s" >>$resultFile
@@ -105,7 +105,7 @@ for loop in 1 2 3; do
     echo "Flink start" >>$resultFile
     $startflink
     START=$(date +%s)
-    $flink run -c Q10_SEQ3Query_IVJ_LS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 16 --vel 78 --qua 67 --pmb 64 --tput 250000
+    $flink run -c Q10_SEQ3Query_IVJ_LS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 16 --vel 78 --qua 67 --pmb 64 --tput 75000
     END=$(date +%s)
     DIFF=$((END - START))
     echo "Q10_SEQ3Query_IVJ_LS run "$loop "--sensors 16:"$DIFF"s" >>$resultFile
@@ -121,7 +121,7 @@ for loop in 1 2 3; do
     echo "Flink start" >>$resultFile
     $startflink
     START=$(date +%s)
-    $flink run -c Q10_SEQ3PatternLS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 32 --vel 78 --qua 67 --pmb 64 --tput 210000
+    $flink run -c Q10_SEQ3PatternLS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 32 --vel 78 --qua 67 --pmb 64 --tput 40000
     END=$(date +%s)
     DIFF=$((END - START))
     echo "Q10_SEQ3PatternLS run "$loop "--sensors 32:"$DIFF"s" >>$resultFile
@@ -137,7 +137,7 @@ for loop in 1 2 3; do
     echo "Flink start" >>$resultFile
     $startflink
     START=$(date +%s)
-    $flink run -c Q10_SEQ3QueryLS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 32 --vel 78 --qua 67 --pmb 64 --tput 325000
+    $flink run -c Q10_SEQ3QueryLS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 32 --vel 78 --qua 67 --pmb 64 --tput 75000
     END=$(date +%s)
     DIFF=$((END - START))
     echo "Q10_SEQ3QueryLS run "$loop "--sensors 32:"$DIFF"s" >>$resultFile
@@ -153,7 +153,7 @@ for loop in 1 2 3; do
     echo "Flink start" >>$resultFile
     $startflink
     START=$(date +%s)
-    $flink run -c Q10_SEQ3Query_IVJ_LS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 32 --vel 78 --qua 67 --pmb 64 --tput 325000
+    $flink run -c Q10_SEQ3Query_IVJ_LS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 32 --vel 78 --qua 67 --pmb 64 --tput 135000
     END=$(date +%s)
     DIFF=$((END - START))
     echo "Q10_SEQ3Query_IVJ_LS run "$loop "--sensors 32:"$DIFF"s" >>$resultFile
@@ -169,7 +169,7 @@ for loop in 1 2 3; do
     echo "Flink start" >>$resultFile
     $startflink
     START=$(date +%s)
-    $flink run -c Q10_SEQ3PatternLS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 64 --vel 78 --qua 67 --pmb 64 --tput 300000
+    $flink run -c Q10_SEQ3PatternLS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 64 --vel 78 --qua 67 --pmb 64 --tput 40000
     END=$(date +%s)
     DIFF=$((END - START))
     echo "Q10_SEQ3PatternLS run "$loop "--sensors 64:"$DIFF"s" >>$resultFile
@@ -185,7 +185,7 @@ for loop in 1 2 3; do
     echo "Flink start" >>$resultFile
     $startflink
     START=$(date +%s)
-    $flink run -c Q10_SEQ3QueryLS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 64 --vel 78 --qua 67 --pmb 64 --tput 350000
+    $flink run -c Q10_SEQ3QueryLS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 64 --vel 78 --qua 67 --pmb 64 --tput 75000
     END=$(date +%s)
     DIFF=$((END - START))
     echo "Q10_SEQ3QueryLS run "$loop "--sensors 64:"$DIFF"s" >>$resultFile
@@ -201,7 +201,7 @@ for loop in 1 2 3; do
     echo "Flink start" >>$resultFile
     $startflink
     START=$(date +%s)
-    $flink run -c Q10_SEQ3Query_IVJ_LS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 64 --vel 78 --qua 67 --pmb 64 --tput 350000
+    $flink run -c Q10_SEQ3Query_IVJ_LS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 64 --vel 78 --qua 67 --pmb 64 --tput 130000
     END=$(date +%s)
     DIFF=$((END - START))
     echo "Q10_SEQ3Query_IVJ_LS run "$loop "--sensors 64:"$DIFF"s" >>$resultFile
@@ -217,7 +217,7 @@ for loop in 1 2 3; do
     echo "Flink start" >>$resultFile
     $startflink
     START=$(date +%s)
-    $flink run -c Q10_SEQ3PatternLS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 128 --vel 78 --qua 67 --pmb 64 --tput 300000
+    $flink run -c Q10_SEQ3PatternLS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 128 --vel 78 --qua 67 --pmb 64 --tput 40000
     END=$(date +%s)
     DIFF=$((END - START))
     echo "Q10_SEQ3PatternLS run "$loop "--sensors 128:"$DIFF"s" >>$resultFile
@@ -233,7 +233,7 @@ for loop in 1 2 3; do
     echo "Flink start" >>$resultFile
     $startflink
     START=$(date +%s)
-    $flink run -c Q10_SEQ3QueryLS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 128 --vel 78 --qua 67 --pmb 64 --tput 350000
+    $flink run -c Q10_SEQ3QueryLS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 128 --vel 78 --qua 67 --pmb 64 --tput 75000
     END=$(date +%s)
     DIFF=$((END - START))
     echo "Q10_SEQ3QueryLS run "$loop "--sensors 128:"$DIFF"s" >>$resultFile
@@ -249,7 +249,7 @@ for loop in 1 2 3; do
     echo "Flink start" >>$resultFile
     $startflink
     START=$(date +%s)
-    $flink run -c Q10_SEQ3Query_IVJ_LS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 128 --vel 78 --qua 67 --pmb 64 --tput 350000
+    $flink run -c Q10_SEQ3Query_IVJ_LS $jar --inputQnV $data_path5 --inputPM $data_path6  --output $output_path --sensors 128 --vel 78 --qua 67 --pmb 64 --tput 130000
     END=$(date +%s)
     DIFF=$((END - START))
     echo "Q10_SEQ3Query_IVJ_LS run "$loop "--sensors 128:"$DIFF"s" >>$resultFile

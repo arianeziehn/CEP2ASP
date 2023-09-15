@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Run with these parameters:
- * --input ./src/main/resources/QnV.csv
+ * --input ./src/main/resources/QnV_R2000070.csv
  * Iteration Pattern with simple filter condition
  */
 
@@ -31,14 +31,14 @@ public class Q11_ITERPattern_I2 {
 
         String file = parameters.get("input");
         String outputPath;
-        Integer velFilter = parameters.getInt("vel", 186);
+        Integer velFilter = parameters.getInt("vel", 114);
         Integer sensors = parameters.getInt("sensors", 16);
-        Integer windowSize = parameters.getInt("wsize", 15);
+        Integer windowSize = parameters.getInt("wsize", 90);
         int iter = parameters.getInt("iter", 4);
         long throughput = parameters.getLong("tput", 100000);
 
         if (!parameters.has("output")) {
-            outputPath = file.replace(".csv", "_resultQ7_I2_CEP.csv");
+            outputPath = file.replace(".csv", "_resultQ11_I2_CEP.csv");
         } else {
             outputPath = parameters.get("output");
         }
@@ -63,7 +63,7 @@ public class Q11_ITERPattern_I2 {
                         }).times(iter).allowCombinations()
                 .within(Time.minutes(windowSize));
 
-        PatternStream<KeyedDataPointGeneral> patternStream = CEP.pattern(input, pattern);
+        PatternStream<KeyedDataPointGeneral> patternStream = CEP.pattern(input.keyBy(KeyedDataPointGeneral::getKey), pattern);
         // we require a type specific flatmap for our Latency Logging
         if (iter == 2) {
             DataStream<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple2());
@@ -75,7 +75,7 @@ public class Q11_ITERPattern_I2 {
             result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
         } else if (iter == 4 ) {
             DataStream<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral,KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple4());
-            result.flatMap(new LatencyLoggerT4(true));
+            result.flatMap(new LatencyLoggerT4());
             result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
         } else if (iter == 6) {
             DataStream<Tuple6<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple6());
