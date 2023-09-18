@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  *--input ./src/main/resources/QnV_R2000070.csv
  */
 
-public class Q10_SEQ3Query_IVJ_LS {
+public class Q10_SEQ3Query_IVJ_LSRO {
     public static void main(String[] args) throws Exception {
 
         final ParameterTool parameters = ParameterTool.fromArgs(args);
@@ -33,7 +33,7 @@ public class Q10_SEQ3Query_IVJ_LS {
         Integer quaFilter = parameters.getInt("qua", 67);
         Integer pm10Filter = parameters.getInt("pmb", 64);
         Integer windowSize = parameters.getInt("wsize", 15);
-        long throughput = parameters.getLong("tput", 100000);
+        long throughput = parameters.getLong("tput", 10000);
 
         String outputPath;
         if (!parameters.has("output")) {
@@ -68,7 +68,7 @@ public class Q10_SEQ3Query_IVJ_LS {
 
         DataStream<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> seq2 = velStream
                 .keyBy(KeyedDataPointGeneral::getKey)
-                .intervalJoin(quaStream.keyBy(KeyedDataPointGeneral::getKey))
+                .intervalJoin(pm10Stream.keyBy(KeyedDataPointGeneral::getKey))
                 .between(Time.minutes(0), Time.minutes(windowSize))
                 .lowerBoundExclusive()
                 .upperBoundExclusive()
@@ -85,16 +85,16 @@ public class Q10_SEQ3Query_IVJ_LS {
 
         DataStream<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> seq3 = seq2
                 .keyBy(new UDFs.getKeyT3())
-                .intervalJoin(pm10Stream.keyBy(KeyedDataPointGeneral::getKey))
+                .intervalJoin(quaStream.keyBy(KeyedDataPointGeneral::getKey))
                 .between(Time.minutes(0), Time.minutes(windowSize))
                 .lowerBoundExclusive()
                 .upperBoundExclusive()
                 .process(new ProcessJoinFunction<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>, KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
                     @Override
                     public void processElement(Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long> d1, KeyedDataPointGeneral d2, ProcessJoinFunction<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>, KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>>.Context context, Collector<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
-                        if (d1.f1.getTimeStampMs() < d2.getTimeStampMs()) {
-                            collector.collect(new Tuple3<>(d1.f0, d1.f1, d2));
-                        }
+                          if (d1.f0.getTimeStampMs() < d2.getTimeStampMs() && d1.f1.getTimeStampMs() > d2.getTimeStampMs()) {
+                                collector.collect(new Tuple3<>(d1.f0, d2, d1.f1));
+                            }
                     }
                 });
 

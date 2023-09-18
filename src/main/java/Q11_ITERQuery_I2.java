@@ -104,7 +104,7 @@ public class Q11_ITERQuery_I2 {
             }
         });
 
-        result.flatMap(new LatencyLoggerT2_O3(true));
+        //result.flatMap(new LatencyLoggerT2_O3(true));
         result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 
         /** Output example:

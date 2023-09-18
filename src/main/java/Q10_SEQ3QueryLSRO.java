@@ -1,15 +1,17 @@
 import org.apache.flink.api.common.JobExecutionResult;
+import org.apache.flink.api.common.functions.FlatJoinFunction;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.co.ProcessJoinFunction;
+import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 import util.*;
 
+import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -17,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  *--input ./src/main/resources/QnV_R2000070.csv
  */
 
-public class Q10_SEQ3Query_IVJ_LS {
+public class Q10_SEQ3QueryLSRO {
     public static void main(String[] args) throws Exception {
 
         final ParameterTool parameters = ParameterTool.fromArgs(args);
@@ -37,7 +39,7 @@ public class Q10_SEQ3Query_IVJ_LS {
 
         String outputPath;
         if (!parameters.has("output")) {
-            outputPath = file.replace(".csv", "_resultQ10_ASP_OVJ_LargeScale.csv");
+            outputPath = file.replace(".csv", "_resultQ10_ASP_LargeScale.csv");
         } else {
             outputPath = parameters.get("output");
         }
@@ -66,34 +68,46 @@ public class Q10_SEQ3Query_IVJ_LS {
                 .filter(t -> ((Double) t.getValue()) > pm10Filter && t instanceof PartMatter10Event);
 
 
-        DataStream<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> seq2 = velStream
-                .keyBy(KeyedDataPointGeneral::getKey)
-                .intervalJoin(quaStream.keyBy(KeyedDataPointGeneral::getKey))
-                .between(Time.minutes(0), Time.minutes(windowSize))
-                .lowerBoundExclusive()
-                .upperBoundExclusive()
-                .process(new ProcessJoinFunction<KeyedDataPointGeneral, KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>>() {
-
+        DataStream<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> seq2 = velStream.join(pm10Stream)
+                .where(KeyedDataPointGeneral::getKey)
+                .equalTo(KeyedDataPointGeneral::getKey)
+                .window(SlidingEventTimeWindows.of(Time.minutes(windowSize), Time.minutes(1)))
+                .apply(new FlatJoinFunction<KeyedDataPointGeneral, KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>>() {
+                    final HashSet<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> set = new HashSet<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>>(1000);
                     @Override
-                    public void processElement(KeyedDataPointGeneral d1, KeyedDataPointGeneral d2, ProcessJoinFunction<KeyedDataPointGeneral, KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>>.Context context, Collector<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> collector) throws Exception {
+                    public void join(KeyedDataPointGeneral d1, KeyedDataPointGeneral d2, Collector<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> collector) throws Exception {
                         if (d1.getTimeStampMs() < d2.getTimeStampMs()) {
-                            collector.collect(new Tuple3<>(d1, d2, d1.getTimeStampMs()));
+                            Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long> result = new Tuple3<>(d1, d2, d1.getTimeStampMs());
+                            if (!set.contains(result)) {
+                                if (set.size() == 1000) {
+                                    set.removeAll(set);
+                                    // to maintain the HashSet Size we flush after 1000 entries
+                                }
+                                collector.collect(result);
+                                set.add(result);
+                            }
                         }
                     }
-                })
-                .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp2KeyedDataPointGeneralLong(60000));
+                }) .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp2KeyedDataPointGeneralLong(60000));
 
-        DataStream<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> seq3 = seq2
-                .keyBy(new UDFs.getKeyT3())
-                .intervalJoin(pm10Stream.keyBy(KeyedDataPointGeneral::getKey))
-                .between(Time.minutes(0), Time.minutes(windowSize))
-                .lowerBoundExclusive()
-                .upperBoundExclusive()
-                .process(new ProcessJoinFunction<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>, KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
+        DataStream<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> seq3 = seq2.join(quaStream)
+                .where(new UDFs.getKeyT3())
+                .equalTo(KeyedDataPointGeneral::getKey)
+                .window(SlidingEventTimeWindows.of(Time.minutes(windowSize), Time.minutes(1)))
+                .apply(new FlatJoinFunction<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>, KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
+                    final HashSet<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> set = new HashSet<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>>();
                     @Override
-                    public void processElement(Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long> d1, KeyedDataPointGeneral d2, ProcessJoinFunction<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>, KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>>.Context context, Collector<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
-                        if (d1.f1.getTimeStampMs() < d2.getTimeStampMs()) {
-                            collector.collect(new Tuple3<>(d1.f0, d1.f1, d2));
+                    public void join(Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long> d1, KeyedDataPointGeneral d2, Collector<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
+                        if (d1.f0.getTimeStampMs() < d2.getTimeStampMs() && d1.f1.getTimeStampMs() > d2.getTimeStampMs()) {
+                            Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral> result = new Tuple3<>(d1.f0, d2, d1.f1);
+                            if (!set.contains(result)) {
+                                if (set.size() == 1000) {
+                                    set.removeAll(set);
+                                    // to maintain the HashSet Size we flush after 1000 entries
+                                }
+                                collector.collect(result);
+                                set.add(result);
+                            }
                         }
                     }
                 });

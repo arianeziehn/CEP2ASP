@@ -82,7 +82,7 @@ public class Q11_ITERQuery_I1_4 {
                 .equalTo(KeyedDataPointGeneral::getKey)
                 .window(SlidingEventTimeWindows.of(Time.minutes(windowSize), Time.minutes(1)))
                 .apply(new FlatJoinFunction<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long>, KeyedDataPointGeneral, Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long>>() {
-                    final HashSet<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> set = new HashSet<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long>>();
+                    final HashSet<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> set = new HashSet<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long>>(1000);
                     @Override
                     public void join(Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long> d1, KeyedDataPointGeneral d2, Collector<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> collector) throws Exception {
                         if (d1.f1.getTimeStampMs() < d2.getTimeStampMs()) {
@@ -122,7 +122,7 @@ public class Q11_ITERQuery_I1_4 {
                     }
                 });
 
-        it4.flatMap(new LatencyLoggerT4());
+        //it4.flatMap(new LatencyLoggerT4());
         it4//.print();
                 .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 

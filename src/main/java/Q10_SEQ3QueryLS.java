@@ -112,7 +112,7 @@ public class Q10_SEQ3QueryLS {
                     }
                 });
 
-        seq3.flatMap(new LatencyLoggerT3());
+        //seq3.flatMap(new LatencyLoggerT3());
         seq3//.print();
                 .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 
