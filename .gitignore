@@ -10,4 +10,7 @@
 /src/main/resources/QnV_large.csv
 /src/main/resources/QnV_R2000070_i.csv
 /src/main/java/Q_SubmissionSigmodVLDB/
-/target/
+/src/main/resources/luftdaten_11245_i.csv
+/src/main/resources/QnV_R2000070_i2.csv
+/src/main/resources/luftdaten_11245_integrated.csv
+/src/main/resources/QnV_R2000070_integrated.csv

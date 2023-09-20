@@ -79,6 +79,13 @@ public class UDFs {
         }
     }
 
+    public static class MapCount_keyed implements MapFunction<KeyedDataPointGeneral, Tuple2<KeyedDataPointGeneral, Integer>> {
+        @Override
+        public Tuple2<KeyedDataPointGeneral, Integer> map(KeyedDataPointGeneral dp) throws Exception {
+            return new Tuple2<KeyedDataPointGeneral, Integer>(dp, 1);
+        }
+    }
+
     public static class GetResultTuple implements PatternFlatSelectFunction<KeyedDataPointGeneral, String> {
         @Override
         public void flatSelect(Map<String, List<KeyedDataPointGeneral>> map, Collector<String> collector) throws Exception {
@@ -89,10 +96,17 @@ public class UDFs {
     public static class GetResultTuple3 implements PatternFlatSelectFunction<KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> {
         @Override
         public void flatSelect(Map<String, List<KeyedDataPointGeneral>> map, Collector<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
-            KeyedDataPointGeneral d1 = map.get("first").get(0);
-            KeyedDataPointGeneral d2 = map.get("first").get(1);
-            KeyedDataPointGeneral d3 = map.get("first").get(2);
-            collector.collect(new Tuple3<>(d1, d2, d3));
+            if (map.get("first").size() == 1) {
+                KeyedDataPointGeneral d1 = map.get("first").get(0);
+                KeyedDataPointGeneral d2 = map.get("second").get(0);
+                KeyedDataPointGeneral d3 = map.get("third").get(0);
+                collector.collect(new Tuple3<>(d1, d2, d3));
+            } else if (map.get("first").size() == 3) { // get result of iteration pattern
+                KeyedDataPointGeneral d1 = map.get("first").get(0);
+                KeyedDataPointGeneral d2 = map.get("first").get(1);
+                KeyedDataPointGeneral d3 = map.get("first").get(2);
+                collector.collect(new Tuple3<>(d1, d2, d3));
+            }
         }
     }
 
@@ -110,25 +124,22 @@ public class UDFs {
             }
         }
     }
-
-    public static class GetResultTuple3SEQ implements PatternFlatSelectFunction<KeyedDataPointGeneral, Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> {
-        @Override
-        public void flatSelect(Map<String, List<KeyedDataPointGeneral>> map, Collector<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
-            KeyedDataPointGeneral d1 = map.get("first").get(0);
-            KeyedDataPointGeneral d2 = map.get("second").get(0);
-            KeyedDataPointGeneral d3 = map.get("third").get(0);
-            collector.collect(new Tuple3<>(d1, d2, d3));
-        }
-    }
-
     public static class GetResultTuple4 implements PatternFlatSelectFunction<KeyedDataPointGeneral, Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> {
         @Override
         public void flatSelect(Map<String, List<KeyedDataPointGeneral>> map, Collector<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
-            KeyedDataPointGeneral d1 = map.get("first").get(0);
-            KeyedDataPointGeneral d2 = map.get("second").get(0);
-            KeyedDataPointGeneral d3 = map.get("third").get(0);
-            KeyedDataPointGeneral d4 = map.get("fourth").get(0);
-            collector.collect(new Tuple4<>(d1, d2, d3, d4));
+            if (map.get("first").size() == 1) {
+                KeyedDataPointGeneral d1 = map.get("first").get(0);
+                KeyedDataPointGeneral d2 = map.get("second").get(0);
+                KeyedDataPointGeneral d3 = map.get("third").get(0);
+                KeyedDataPointGeneral d4 = map.get("fourth").get(0);
+                collector.collect(new Tuple4<>(d1, d2, d3, d4));
+            } else if (map.get("first").size() == 4) { // get result of iteration pattern
+                KeyedDataPointGeneral d1 = map.get("first").get(0);
+                KeyedDataPointGeneral d2 = map.get("first").get(1);
+                KeyedDataPointGeneral d3 = map.get("first").get(2);
+                KeyedDataPointGeneral d4 = map.get("first").get(3);
+                collector.collect(new Tuple4<>(d1, d2, d3, d4));
+            }
         }
     }
 
@@ -275,6 +286,34 @@ public class UDFs {
         }
     }
 
+    public static class ExtractTimestampKeyedDataPointGeneral1Int implements AssignerWithPeriodicWatermarks<Tuple2<KeyedDataPointGeneral, Integer>> {
+        private static final long serialVersionUID = 1L;
+        private long maxOutOfOrderness;
+
+        private long currentMaxTimestamp;
+
+        public ExtractTimestampKeyedDataPointGeneral1Int() {
+            this.maxOutOfOrderness = 0;
+        }
+
+        public ExtractTimestampKeyedDataPointGeneral1Int(long periodMs) {
+            this.maxOutOfOrderness = (periodMs);
+        }
+
+        @Nullable
+        @Override
+        public Watermark getCurrentWatermark() {
+            return new Watermark(currentMaxTimestamp - maxOutOfOrderness);
+        }
+
+        @Override
+        public long extractTimestamp(Tuple2<KeyedDataPointGeneral, Integer> element, long l) {
+            long timestamp = element.f0.getTimeStampMs();
+            currentMaxTimestamp = Math.max(timestamp, currentMaxTimestamp);
+            return timestamp;
+        }
+    }
+
     public static class TimeComparator implements Comparator<Tuple2<KeyedDataPointGeneral, Integer>> {
         @Override
         public int compare(Tuple2<KeyedDataPointGeneral, Integer> t1, Tuple2<KeyedDataPointGeneral, Integer> t2) {
@@ -373,6 +412,34 @@ public class UDFs {
         @Override
         public long extractTimestamp(Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, Long> element, long l) {
             long timestamp = element.f2;
+            currentMaxTimestamp = Math.max(timestamp, currentMaxTimestamp);
+            return timestamp;
+        }
+    }
+
+    public static class ExtractTimestamp3KeyedDataPointGeneralLong implements AssignerWithPeriodicWatermarks<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long>> {
+        private static final long serialVersionUID = 1L;
+        private long maxOutOfOrderness;
+
+        private long currentMaxTimestamp;
+
+        public ExtractTimestamp3KeyedDataPointGeneralLong() {
+            this.maxOutOfOrderness = 0;
+        }
+
+        public ExtractTimestamp3KeyedDataPointGeneralLong(long periodMs) {
+            this.maxOutOfOrderness = (periodMs);
+        }
+
+        @Nullable
+        @Override
+        public Watermark getCurrentWatermark() {
+            return new Watermark(currentMaxTimestamp - maxOutOfOrderness);
+        }
+
+        @Override
+        public long extractTimestamp(Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long> element, long l) {
+            long timestamp = element.f3;
             currentMaxTimestamp = Math.max(timestamp, currentMaxTimestamp);
             return timestamp;
         }
@@ -578,44 +645,9 @@ public class UDFs {
         }
     }
 
-    public static class getKeyT4 implements KeySelector<Tuple5<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long,Integer>, String> {
+    public static class getKeyT4 implements KeySelector<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral,KeyedDataPointGeneral, Long>, String> {
         @Override
-        public String getKey(Tuple5<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long,Integer> data) throws Exception {
-            return data.f0.getKey();
-        }
-    }
-
-    public static class getKeyT5 implements KeySelector<Tuple6<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>, String> {
-        @Override
-        public String getKey(Tuple6<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> data) throws Exception {
-            return data.f0.getKey();
-        }
-    }
-
-    public static class getKeyT6 implements KeySelector<Tuple7<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>, String> {
-        @Override
-        public String getKey(Tuple7<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> data) throws Exception {
-            return data.f0.getKey();
-        }
-    }
-
-    public static class getKeyT7 implements KeySelector<Tuple8<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>, String> {
-        @Override
-        public String getKey(Tuple8<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> data) throws Exception {
-            return data.f0.getKey();
-        }
-    }
-
-    public static class getKeyT8 implements KeySelector<Tuple9<KeyedDataPointGeneral,KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>, String> {
-        @Override
-        public String getKey(Tuple9<KeyedDataPointGeneral,KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> data) throws Exception {
-            return data.f0.getKey();
-        }
-    }
-
-    public static class getKeyT9 implements KeySelector<Tuple10<KeyedDataPointGeneral,KeyedDataPointGeneral,KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>, String> {
-        @Override
-        public String getKey(Tuple10<KeyedDataPointGeneral,KeyedDataPointGeneral,KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer> data) throws Exception {
+        public String getKey(Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long> data) throws Exception {
             return data.f0.getKey();
         }
     }

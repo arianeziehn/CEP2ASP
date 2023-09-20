@@ -4,6 +4,9 @@ import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunctio
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 public class KeyedDataPointParallelSourceFunction extends RichParallelSourceFunction<KeyedDataPointGeneral> {
@@ -17,7 +20,7 @@ public class KeyedDataPointParallelSourceFunction extends RichParallelSourceFunc
     private String delimiter = ",";
     private boolean manipulateIngestionRate = false;
     private long throughput;
-    private int runtime = 40;
+    private int runtime = 20;
 
     public KeyedDataPointParallelSourceFunction(String fileName) {
         this.file = fileName;
@@ -139,11 +142,15 @@ public class KeyedDataPointParallelSourceFunction extends RichParallelSourceFunc
                     id = data[0].trim();
                 else id = this.key;
 
-                if (data.length == 4) {
+                if (data.length == 4 && data[0].equals("R2000070")) {
                     // parse QnV
                     // time
                     if (this.sourceLoops == 1 || loopCount == 1) {
-                        millisSinceEpoch = Long.parseLong(data[1]);
+                        if(data[1].length()== 10){
+                            millisSinceEpoch = Long.parseLong(data[1])*1000;
+                        }else{
+                            millisSinceEpoch = Long.parseLong(data[1]);
+                        }
                     } else {
                         this.currentTime += 60000;
                         millisSinceEpoch = this.currentTime;
@@ -177,12 +184,88 @@ public class KeyedDataPointParallelSourceFunction extends RichParallelSourceFunc
                             tupleCounter++;
                         }
                     } else {
-                        System.out.println("TODO");
                         run = false;
+                        //TODO that code produces duplicates
+                        /**int keyP = this.getRuntimeContext().getIndexOfThisSubtask();
+                        if(keyP < this.sensors){
+                            KeyedDataPointGeneral velEvent = new VelocityEvent(Integer.toString(keyP),
+                                    millisSinceEpoch, velocity, longitude, latitude);
+
+                            sourceContext.collect(velEvent);
+                            tupleCounter++;
+
+                            KeyedDataPointGeneral quaEvent = new QuantityEvent(Integer.toString(keyP),
+                                    millisSinceEpoch, quantity, longitude, latitude);
+
+                            sourceContext.collect(quaEvent);
+                            tupleCounter++;
+                        }else{
+                            run = false;
+                        }*/
                     }
 
-                } else {
-                    System.out.println(rawData + ": Unkown Datatype of length " + data.length);
+                } else if (data.length == 10 && data[1].equals("SDS011")) {
+                    // parse SDS011
+                    float latitude = Float.parseFloat(data[3].trim());
+                    float longitude = Float.parseFloat(data[4].trim());
+
+                    if (this.sourceLoops == 1 || loopCount == 1) {
+
+                        if(data[5].length()== 10){
+                            millisSinceEpoch = Long.parseLong(data[5])*1000;
+                        }else {
+                            //System.out.println("Before formatting: " + data[5]);
+                            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                            LocalDateTime timestampDT = LocalDateTime.parse(data[5].trim().replace("T", " "), dtf);
+                            //System.out.println("after formatting: " + timestampDT);
+                            millisSinceEpoch = timestampDT.atZone(ZoneId.systemDefault())
+                                    .toInstant().toEpochMilli();
+
+                        }
+                    } else {
+                        this.currentTime += (Math.floor(Math.random() * (6 - 3) + 3)) * 60000;
+                        millisSinceEpoch = this.currentTime;
+                    }
+
+                    double p10 = Double.parseDouble(data[6].trim());
+                    double p2 = Double.parseDouble(data[9].trim());
+
+                    int maxPara = this.getRuntimeContext().getNumberOfParallelSubtasks();
+                    if (this.sensors >= maxPara) {
+                        for (int i = 0; i < (this.sensors / maxPara); i++) {
+
+                            KeyedDataPointGeneral P1Event = new PartMatter10Event(Integer.toString((this.getRuntimeContext().getIndexOfThisSubtask() + (maxPara * i))),
+                                    millisSinceEpoch, p10, longitude, latitude);
+
+                            sourceContext.collect(P1Event);
+                            tupleCounter++;
+
+                            KeyedDataPointGeneral P2Event = new PartMatter2Event(Integer.toString((this.getRuntimeContext().getIndexOfThisSubtask() + (maxPara * i))),
+                                    millisSinceEpoch, p2, longitude, latitude);
+
+                            sourceContext.collect(P2Event);
+                            tupleCounter++;
+                        }
+                    } else {
+                       run = false;
+                       //TODO that code produces duplicates
+                       /** int keyP = this.getRuntimeContext().getIndexOfThisSubtask();
+                        if(keyP < this.sensors){
+                            KeyedDataPointGeneral P1Event = new PartMatter10Event(Integer.toString(keyP),
+                                    millisSinceEpoch, p10, longitude, latitude);
+
+                            sourceContext.collect(P1Event);
+                            tupleCounter++;
+
+                            KeyedDataPointGeneral P2Event = new PartMatter2Event(Integer.toString(keyP),
+                                    millisSinceEpoch, p2, longitude, latitude);
+
+                            sourceContext.collect(P2Event);
+                            tupleCounter++;
+                        }else{
+                            run = false;
+                        }*/
+                    }
                 }
 
                 if (!scan.hasNext() && loopCount < this.sourceLoops) {

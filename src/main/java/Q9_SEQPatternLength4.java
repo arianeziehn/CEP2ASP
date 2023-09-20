@@ -108,7 +108,7 @@ public class Q9_SEQPatternLength4 {
         PatternStream<KeyedDataPointGeneral> patternStream = CEP.pattern(input, pattern);
 
         if (patternLength == 3) {
-            DataStream<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple3SEQ());
+            DataStream<Tuple3<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple3());
             result.flatMap(new LatencyLoggerT3(true));
             result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
         } else if (patternLength == 4) {
