@@ -12,8 +12,8 @@ At the top of each script, you find a set of variables (i.e., paths) that need t
 | Q3    |                              |                |             |
 | Q4    |                              |                |             |
 | Q5    |          NOT<sub>1           |                |             |
-| Q6    |                              |   ITER<sub>1   |             |
-| Q7    |          ITER<sub>1          |   ITER<sub>1   |             |
+| Q6    |                              |   ITER<sub>2   |             |
+| Q7    |          ITER<sub>1          |   ITER<sub>3   |             |
 | Q8    |                              |                |             |
 | Q9    |                              |  SEQ<sub>2-6   |             |
 | Q10   |                              |                | SEQ<sub>7   |
@@ -22,11 +22,11 @@ At the top of each script, you find a set of variables (i.e., paths) that need t
  
 ## Maximal Maintainable Throughput
 Furthermore, we use threshold filters to control the output selectivity of a pattern. We evaluate the maximal maintainable throughput in preliminary experiments. Depending on your machines, 
-you may need to adjust the throughput's (i.e., the ingestion rate) provided in the scripts. A maximal maintainable throughput is the maximal throughput the system can reach without creating backpressure on the upstream operators of the execution pipeline.
+you may need to adjust the throughputs (i.e., the ingestion rate) provided in the scripts. A maximal maintainable throughput is the maximal throughput the system can reach without creating backpressure on the upstream operators of the execution pipeline.
 Thus, leading to a similar value for the ingestion rate and the maximal maintainable throughput. We exploratory identified the maximal maintainable throughput for each pattern and query using the ThroughputLogger in the util folder.
 We ensure that the ingestion rate is equivalent to the derived average throughput (mean(result)) with a tolerance bound of 10%. 
 Furthermore, we ensure that the standard deviation of all 10 runs is smaller than 5% and includes the median. 
-You can use our R code below to verify your throughput results which are printed in the flink log files. 
+You can use our R code below to verify your throughput results, which are printed in the Flink log files. 
 ```
 path <- '/to/your/logFiles.txt'
 result=c()
