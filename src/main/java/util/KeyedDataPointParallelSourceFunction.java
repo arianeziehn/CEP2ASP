@@ -20,7 +20,7 @@ public class KeyedDataPointParallelSourceFunction extends RichParallelSourceFunc
     private String delimiter = ",";
     private boolean manipulateIngestionRate = false;
     private long throughput;
-    private int runtime = 20;
+    private int runtime = 35;
 
     public KeyedDataPointParallelSourceFunction(String fileName) {
         this.file = fileName;

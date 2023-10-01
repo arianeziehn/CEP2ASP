@@ -124,6 +124,7 @@ public class UDFs {
             }
         }
     }
+
     public static class GetResultTuple4 implements PatternFlatSelectFunction<KeyedDataPointGeneral, Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> {
         @Override
         public void flatSelect(Map<String, List<KeyedDataPointGeneral>> map, Collector<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
@@ -645,7 +646,7 @@ public class UDFs {
         }
     }
 
-    public static class getKeyT4 implements KeySelector<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral,KeyedDataPointGeneral, Long>, String> {
+    public static class getKeyT4 implements KeySelector<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long>, String> {
         @Override
         public String getKey(Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, KeyedDataPointGeneral, Long> data) throws Exception {
             return data.f0.getKey();

@@ -14,10 +14,10 @@ The **KeyedDataPointSourceFunction** is the general source that handles all in /
 provided files. If you change the format of the files make sure you write your own source
 function or adjust the provided Source accordingly. 
 
-The **KeyedDataPointParallelSourceFunction** is a special source for the single sensors files, i.e., R200070 and R200073. 
+The **KeyedDataPointParallelSourceFunction** is a special source for the single sensors files, i.e., R2000070/73 and luftdaten. 
 We use this source for our scalability experiments as this data source is executed in parallel. 
 
 ## Metrics
 
-We use the **ThroughputLogger** class to monitor the throughput of our application. Be aware that placing
+We use the **ThroughputLogger** and **LatencyLoggerTX** classes to monitor the throughput of our application. Be aware that placing
 the logger needs to be done carefully as it may cause additional shuffling processes otherwise. 
