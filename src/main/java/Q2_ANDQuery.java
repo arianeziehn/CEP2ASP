@@ -1,5 +1,3 @@
-package Q_SubmissionSigmodVLDB;
-
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.functions.FlatJoinFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -12,6 +10,8 @@ import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindow
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 import util.*;
+
+import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -61,22 +61,33 @@ public class Q2_ANDQuery {
             return ((Double) t.f0.getValue()) > quaFilter && t.f0 instanceof QuantityEvent;
         });
 
-        DataStream<Tuple2<KeyedDataPointGeneral,KeyedDataPointGeneral>> result = velStream.join(quaStream)
-                //.where(new UDFs.getOriginalKey()) // use for C2
-                //.equalTo(new UDFs.getOriginalKey()) // use for C2
-                .where(new UDFs.getArtificalKey()) // use for C1
-                .equalTo(new UDFs.getArtificalKey()) // use for C1
+        DataStream<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> result = velStream.join(quaStream)
+                .where(new UDFs.getArtificalKey())
+                .equalTo(new UDFs.getArtificalKey())
                 .window(SlidingEventTimeWindows.of(Time.minutes(windowSize), Time.minutes(1)))
                 .apply(new FlatJoinFunction<Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
+                    final HashSet<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> set = new HashSet<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>(1000);
                     @Override
                     public void join(Tuple2<KeyedDataPointGeneral, Integer> d1, Tuple2<KeyedDataPointGeneral, Integer> d2, Collector<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
-                            double distance = UDFs.checkDistance(d1.f0,d2.f0);
-                            if (distance < 10.0) collector.collect(new Tuple2<>(d1.f0, d2.f0));
+                        // we apply the temporal filter in the FlatJoinfunction, other system may not allow to modify the join output and require the filter after the join
+                        double distance = UDFs.checkDistance(d1.f0, d2.f0);
+                        if (distance < 10.0) {
+                            Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral> result = new Tuple2<>(d1.f0, d2.f0);
+                            if (!set.contains(result)) {
+                                if (set.size() == 1000) {
+                                    set.removeAll(set);
+                                    // to maintain the HashSet Size we flush after 1000 entries
+                                }
+                                collector.collect(result);
+                                set.add(result);
+                            }
+                        }
                     }
+
                 });
 
         result //.print();
-          .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
+                .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 
         JobExecutionResult executionResult = env.execute("My FlinkASP Job");
         System.out.println("The job took " + executionResult.getNetRuntime(TimeUnit.MILLISECONDS) + "ms to execute");

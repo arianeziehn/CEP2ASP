@@ -1,6 +1,5 @@
-package Q_SubmissionSigmodVLDB;
-
 import org.apache.flink.api.common.JobExecutionResult;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.cep.CEP;
 import org.apache.flink.cep.PatternStream;
@@ -108,8 +107,9 @@ public class Q2_ANDPattern {
          * As Flink does not provide the conjunction operator, i.e., and between two different subtypes, we create to sequence pattern
          * and unify their results.
          * */
-        DataStream<String> result = patternStream1.flatSelect(new UDFs.GetResultTuple())
-                .union(patternStream2.flatSelect(new UDFs.GetResultTuple()));
+
+        DataStream<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream1.flatSelect(new UDFs.GetResultTuple2())
+                .union(patternStream2.flatSelect(new UDFs.GetResultTuple2()));
 
         result//.print();
                 .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);

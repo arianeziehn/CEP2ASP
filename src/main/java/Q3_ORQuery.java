@@ -1,6 +1,5 @@
-package Q_SubmissionSigmodVLDB;
-
 import org.apache.flink.api.common.JobExecutionResult;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.streaming.api.TimeCharacteristic;
@@ -12,6 +11,8 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 import util.*;
+
+import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -56,14 +57,25 @@ public class Q3_ORQuery {
                 // window is not required for union, if applied a .apply() function is necessary
                 .windowAll(SlidingEventTimeWindows.of(Time.minutes(windowSize), Time.minutes(1)))
                 .apply(new AllWindowFunction<KeyedDataPointGeneral, KeyedDataPointGeneral, TimeWindow>() {
+                    final HashSet<KeyedDataPointGeneral> set = new HashSet<KeyedDataPointGeneral>(1000);
+
                     @Override
                     public void apply(TimeWindow timeWindow, Iterable<KeyedDataPointGeneral> iterable, Collector<KeyedDataPointGeneral> collector) throws Exception {
-                        iterable.forEach(t -> collector.collect(t));
+                        iterable.forEach(t -> {
+                            if (!set.contains(t)) {
+                                if (set.size() == 1000) {
+                                    set.removeAll(set);
+                                    // to maintain the HashSet Size we flush after 1000 entries
+                                }
+                                collector.collect(t);
+                                set.add(t);
+                            }
+                        });
                     }
                 });
 
         result //.print();
-          .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
+                .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 
         JobExecutionResult executionResult = env.execute("My FlinkASP Job");
         System.out.println("The job took " + executionResult.getNetRuntime(TimeUnit.MILLISECONDS) + "ms to execute");

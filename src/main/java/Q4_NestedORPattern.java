@@ -1,6 +1,5 @@
-package Q_SubmissionSigmodVLDB;
-
 import org.apache.flink.api.common.JobExecutionResult;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.cep.CEP;
 import org.apache.flink.cep.PatternStream;
@@ -103,8 +102,8 @@ public class Q4_NestedORPattern {
         PatternStream<KeyedDataPointGeneral> patternStream = CEP.pattern(input, pattern1);
         PatternStream<KeyedDataPointGeneral> patternStream2 = CEP.pattern(input, pattern2);
 
-        DataStream<String> result = patternStream.flatSelect(new UDFs.GetResultTuple())
-                .union(patternStream2.flatSelect(new UDFs.GetResultTuple()));
+        DataStream<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple2())
+                .union(patternStream2.flatSelect(new UDFs.GetResultTuple2()));
 
         result //.print();
               .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);

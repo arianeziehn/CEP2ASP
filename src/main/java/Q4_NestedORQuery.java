@@ -1,5 +1,3 @@
-package Q_SubmissionSigmodVLDB;
-
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.functions.FlatJoinFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -12,6 +10,8 @@ import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindow
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 import util.*;
+
+import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -74,10 +74,22 @@ public class Q4_NestedORQuery {
                 .equalTo(new UDFs.getArtificalKey())
                 .window(SlidingEventTimeWindows.of(Time.minutes(windowSize), Time.minutes(1)))
                 .apply(new FlatJoinFunction<Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
+                    final HashSet<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> set = new HashSet<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>(1000);
                     @Override
                     public void join(Tuple2<KeyedDataPointGeneral, Integer> d1, Tuple2<KeyedDataPointGeneral, Integer> d2, Collector<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
-                        if (d1.f0.getTimeStampMs() < d2.f0.getTimeStampMs()) {
-                            collector.collect(new Tuple2<>(d1.f0, d2.f0));
+                        if (d1.f0.getTimeStampMs() < d2.f0.getTimeStampMs()) { // a sequence by definition requires <, to match FlinkCEP use <= here
+                            double distance = UDFs.checkDistance(d1.f0, d2.f0);
+                            if (distance < 10.0) {
+                                Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral> result = new Tuple2<>(d1.f0, d2.f0);
+                                if (!set.contains(result)) {
+                                    if (set.size() == 1000) {
+                                        set.removeAll(set);
+                                        // to maintain the HashSet Size we flush after 1000 entries
+                                    }
+                                    collector.collect(result);
+                                    set.add(result);
+                                }
+                            }
                         }
                     }
                 });
@@ -87,10 +99,22 @@ public class Q4_NestedORQuery {
                 .equalTo(new UDFs.getArtificalKey())
                 .window(SlidingEventTimeWindows.of(Time.minutes(windowSize), Time.minutes(1)))
                 .apply(new FlatJoinFunction<Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
+                    final HashSet<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> set = new HashSet<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>(1000);
                     @Override
                     public void join(Tuple2<KeyedDataPointGeneral, Integer> d1, Tuple2<KeyedDataPointGeneral, Integer> d2, Collector<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
-                        if (d1.f0.getTimeStampMs() < d2.f0.getTimeStampMs()) {
-                            collector.collect(new Tuple2<>(d1.f0, d2.f0));
+                        if (d1.f0.getTimeStampMs() < d2.f0.getTimeStampMs()) { // a sequence by definition requires <, to match FlinkCEP use <= here
+                            double distance = UDFs.checkDistance(d1.f0, d2.f0);
+                            if (distance < 10.0) {
+                                Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral> result = new Tuple2<>(d1.f0, d2.f0);
+                                if (!set.contains(result)) {
+                                    if (set.size() == 1000) {
+                                        set.removeAll(set);
+                                        // to maintain the HashSet Size we flush after 1000 entries
+                                    }
+                                    collector.collect(result);
+                                    set.add(result);
+                                }
+                            }
                         }
                     }
                 });
