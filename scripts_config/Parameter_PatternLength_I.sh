@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-startflink='/home/ziehn-ldap/flink-1.11.6_SP/bin/start-cluster.sh'
-stopflink='/home/ziehn-ldap/flink-1.11.6_SP/bin/stop-cluster.sh'
-flink='/home/ziehn-ldap/flink-1.11.6_SP/bin/flink'
-jar='/home/ziehn-ldap/flink-cep-1.0-SNAPSHOT_SP.jar'
-output_path='/home/ziehn-ldap/result'
-resultFile='/home/ziehn-ldap/CollectEchoSP.txt'
-data_path2='/home/ziehn-ldap/QnV_large.csv' # You find the file here: https://gofile.io/d/pjglkV
+startflink='/path/to/flink-1.11.6/bin/start-cluster.sh'
+stopflink='/path/to/flink-1.11.6/bin/stop-cluster.sh'
+flink='/path/to/flink-1.11.6/bin/flink'
+jar='/path/to/flink-cep-1.0-SNAPSHOT.jar'
+output_path='/path/to/result'
+resultFile='/path/to/CollectEcho.txt'
+data_path2='/path/to/QnV.csv' 
+data_path1='/path/to/QnV_R2000070.csv'
+data_path3='/path/to/luftdaten_11245.csv'
 
 now=$(date +"%T")
 today=$(date +%d.%m.%y)
@@ -23,10 +25,10 @@ for loop in 1 2 3 4 5 6 7 8 9 10; do
   DIFF=$((END - START))
   echo "Q6_ITERPattern_I1 run "$loop "--pattern length 3 : "$DIFF"s" >>$resultFile
   $stopflink
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/PLIExp/FOut_PITER3L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/PLIExp/FOut_PITER3L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.log' '/home/ziehn-ldap/PLIExp/FOut_PITER3T_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.log' '/home/ziehn-ldap/PLIExp/FOut_PITER3T_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-1-node-1.out' '/path/to/PLIExp/FOut_PITER3L_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-0-node-1.out' '/path/to/PLIExp/FOut_PITER3L_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-1-node-1.log' '/path/to/PLIExp/FOut_PITER3T_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-0-node-1.log' '/path/to/PLIExp/FOut_PITER3T_'$loop'.txt'
   echo "------------ Flink stopped ------------" >>$resultFile
   now=$(date +"%T")
   today=$(date +%d.%m.%y)
@@ -39,10 +41,10 @@ for loop in 1 2 3 4 5 6 7 8 9 10; do
   DIFF=$((END - START))
   echo "Q6_ITERQuery_I1T run "$loop "--pattern length 3 : "$DIFF"s" >>$resultFile
   $stopflink
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/PLIExp/FOut_QITER3L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/PLIExp/FOut_QITER3L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.log' '/home/ziehn-ldap/PLIExp/FOut_QITER3T_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.log' '/home/ziehn-ldap/PLIExp/FOut_QITER3T_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-1-node-1.out' '/path/to/PLIExp/FOut_QITER3L_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-0-node-1.out' '/path/to/PLIExp/FOut_QITER3L_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-1-node-1.log' '/path/to/PLIExp/FOut_QITER3T_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-0-node-1.log' '/path/to/PLIExp/FOut_QITER3T_'$loop'.txt'
   echo "------------ Flink stopped ------------" >>$resultFile
   now=$(date +"%T")
   today=$(date +%d.%m.%y)
@@ -55,10 +57,10 @@ for loop in 1 2 3 4 5 6 7 8 9 10; do
   DIFF=$((END - START))
   echo "Q6_ITERQuery_I1T_IVJ run "$loop "--pattern length 3 : "$DIFF"s" >>$resultFile
   $stopflink
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/PLIExp/FOut_Q_IVJ_ITER3L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/PLIExp/FOut_Q_IVJ_ITER3L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.log' '/home/ziehn-ldap/PLIExp/FOut_Q_IVJ_ITER3T_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.log' '/home/ziehn-ldap/PLIExp/FOut_Q_IVJ_ITER3T_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-1-node-1.out' '/path/to/PLIExp/FOut_Q_IVJ_ITER3L_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-0-node-1.out' '/path/to/PLIExp/FOut_Q_IVJ_ITER3L_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-1-node-1.log' '/path/to/PLIExp/FOut_Q_IVJ_ITER3T_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-0-node-1.log' '/path/to/PLIExp/FOut_Q_IVJ_ITER3T_'$loop'.txt'
   echo "------------ Flink stopped ------------" >>$resultFile
   now=$(date +"%T")
   today=$(date +%d.%m.%y)
@@ -71,10 +73,10 @@ for loop in 1 2 3 4 5 6 7 8 9 10; do
   DIFF=$((END - START))
   echo "Q6_ITERPattern_I1 run "$loop "--pattern length 6 : "$DIFF"s" >>$resultFile
   $stopflink
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/PLIExp/FOut_PITER6L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/PLIExp/FOut_PITER6L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.log' '/home/ziehn-ldap/PLIExp/FOut_PITER6T_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.log' '/home/ziehn-ldap/PLIExp/FOut_PITER6T_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-1-node-1.out' '/path/to/PLIExp/FOut_PITER6L_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-0-node-1.out' '/path/to/PLIExp/FOut_PITER6L_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-1-node-1.log' '/path/to/PLIExp/FOut_PITER6T_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-0-node-1.log' '/path/to/PLIExp/FOut_PITER6T_'$loop'.txt'
   echo "------------ Flink stopped ------------" >>$resultFile
   now=$(date +"%T")
   today=$(date +%d.%m.%y)
@@ -87,10 +89,10 @@ for loop in 1 2 3 4 5 6 7 8 9 10; do
   DIFF=$((END - START))
   echo "Q6_ITERQuery_I1T run "$loop "--pattern length 6 : "$DIFF"s" >>$resultFile
   $stopflink
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/PLIExp/FOut_QITER6L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/PLIExp/FOut_QITER6L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.log' '/home/ziehn-ldap/PLIExp/FOut_QITER6T_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.log' '/home/ziehn-ldap/PLIExp/FOut_QITER6T_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-1-node-1.out' '/path/to/PLIExp/FOut_QITER6L_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-0-node-1.out' '/path/to/PLIExp/FOut_QITER6L_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-1-node-1.log' '/path/to/PLIExp/FOut_QITER6T_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-0-node-1.log' '/path/to/PLIExp/FOut_QITER6T_'$loop'.txt'
   echo "------------ Flink stopped ------------" >>$resultFile
   now=$(date +"%T")
   today=$(date +%d.%m.%y)
@@ -103,10 +105,10 @@ for loop in 1 2 3 4 5 6 7 8 9 10; do
   DIFF=$((END - START))
   echo "Q6_ITERQuery_I1T_IVJ run "$loop "--pattern length 6 : "$DIFF"s" >>$resultFile
   $stopflink
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/PLIExp/FOut_Q_IVJ_ITER6L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/PLIExp/FOut_Q_IVJ_ITER6L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.log' '/home/ziehn-ldap/PLIExp/FOut_Q_IVJ_ITER6T_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.log' '/home/ziehn-ldap/PLIExp/FOut_Q_IVJ_ITER6T_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-1-node-1.out' '/path/to/PLIExp/FOut_Q_IVJ_ITER6L_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-0-node-1.out' '/path/to/PLIExp/FOut_Q_IVJ_ITER6L_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-1-node-1.log' '/path/to/PLIExp/FOut_Q_IVJ_ITER6T_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-0-node-1.log' '/path/to/PLIExp/FOut_Q_IVJ_ITER6T_'$loop'.txt'
   echo "------------ Flink stopped ------------" >>$resultFile
   echo "Tasks executed"
   now=$(date +"%T")
@@ -120,10 +122,10 @@ for loop in 1 2 3 4 5 6 7 8 9 10; do
   DIFF=$((END - START))
   echo "Q6_ITERPattern_I1 run "$loop "--pattern length 9 : "$DIFF"s" >>$resultFile
   $stopflink
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/PLIExp/FOut_PITER9L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/PLIExp/FOut_PITER9L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.log' '/home/ziehn-ldap/PLIExp/FOut_PITER9T_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.log' '/home/ziehn-ldap/PLIExp/FOut_PITER9T_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-1-node-1.out' '/path/to/PLIExp/FOut_PITER9L_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-0-node-1.out' '/path/to/PLIExp/FOut_PITER9L_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-1-node-1.log' '/path/to/PLIExp/FOut_PITER9T_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-0-node-1.log' '/path/to/PLIExp/FOut_PITER9T_'$loop'.txt'
   echo "------------ Flink stopped ------------" >>$resultFile
   now=$(date +"%T")
   today=$(date +%d.%m.%y)
@@ -136,10 +138,10 @@ for loop in 1 2 3 4 5 6 7 8 9 10; do
   DIFF=$((END - START))
   echo "Q6_ITERQuery_I1T run "$loop "--pattern length 9 : "$DIFF"s" >>$resultFile
   $stopflink
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/PLIExp/FOut_QITER9L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/PLIExp/FOut_QITER9L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.log' '/home/ziehn-ldap/PLIExp/FOut_QITER9T_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.log' '/home/ziehn-ldap/PLIExp/FOut_QITER9T_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-1-node-1.out' '/path/to/PLIExp/FOut_QITER9L_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-0-node-1.out' '/path/to/PLIExp/FOut_QITER9L_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-1-node-1.log' '/path/to/PLIExp/FOut_QITER9T_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-0-node-1.log' '/path/to/PLIExp/FOut_QITER9T_'$loop'.txt'
   echo "------------ Flink stopped ------------" >>$resultFile
   echo "Tasks executed"
   now=$(date +"%T")
@@ -153,10 +155,10 @@ for loop in 1 2 3 4 5 6 7 8 9 10; do
   DIFF=$((END - START))
   echo "Q6_ITERQuery_I1T_IVJ run "$loop "--pattern length 9 : "$DIFF"s" >>$resultFile
   $stopflink
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.out' '/home/ziehn-ldap/PLIExp/FOut_Q_IVJ_ITER9L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.out' '/home/ziehn-ldap/PLIExp/FOut_Q_IVJ_ITER9L_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-1-sr630-wn-a-13.log' '/home/ziehn-ldap/PLIExp/FOut_Q_IVJ_ITER9T_'$loop'.txt'
-  cp '/home/ziehn-ldap/flink-1.11.6_SP/log/''flink-ziehn-ldap -taskexecutor-0-sr630-wn-a-13.log' '/home/ziehn-ldap/PLIExp/FOut_Q_IVJ_ITER9T_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-1-node-1.out' '/path/to/PLIExp/FOut_Q_IVJ_ITER9L_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-0-node-1.out' '/path/to/PLIExp/FOut_Q_IVJ_ITER9L_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-1-node-1.log' '/path/to/PLIExp/FOut_Q_IVJ_ITER9T_'$loop'.txt'
+  cp '/path/to/flink-1.11.6/log/flink-taskexecutor-0-node-1.log' '/path/to/PLIExp/FOut_Q_IVJ_ITER9T_'$loop'.txt'
   echo "------------ Flink stopped ------------" >>$resultFile
   echo "Tasks executed"
 done
