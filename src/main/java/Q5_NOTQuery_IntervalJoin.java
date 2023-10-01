@@ -27,7 +27,6 @@ import java.util.concurrent.TimeUnit;
  * Run with these parameters: they have matching event time
  * --input ./src/main/resources/QnV_R2000070.csv --inputAQ ./src/main/resources/luftdaten_11245.csv
  */
-
 public class Q5_NOTQuery_IntervalJoin {
     public static void main(String[] args) throws Exception {
 

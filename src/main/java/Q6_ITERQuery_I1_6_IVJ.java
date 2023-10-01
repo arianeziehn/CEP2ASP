@@ -42,11 +42,12 @@ public class Q6_ITERQuery_I1_6_IVJ {
         } else {
             outputPath = parameters.get("output");
         }
-        // Local settings may require you to adjust configs in this way, we experienced it for longer iterations
+        /** Local settings may require you to adjust configs in this way, we experienced it for longer iterations
         //Configuration cfg = new Configuration();
         //int defaultLocalParallelism = Runtime.getRuntime().availableProcessors();
         //cfg.setString("taskmanager.memory.network.fraction", "0.2");
         //StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironment(defaultLocalParallelism, cfg);
+         */
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
@@ -59,7 +60,6 @@ public class Q6_ITERQuery_I1_6_IVJ {
                 .filter(t -> ((Double) t.getValue()) >= velFilter && (t instanceof VelocityEvent))
                 .map(new UDFs.MapKey());
 
-        // iter2
         // iter2
         DataStream<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>> it2 = velStream.keyBy(new UDFs.getArtificalKey())
                 .intervalJoin(velStream.keyBy(new UDFs.getArtificalKey()))

@@ -97,7 +97,7 @@ public class Q11_ITERQuery_I1_4_IVJ {
                     }
                 });
 
-        //it4.flatMap(new LatencyLoggerT4(true));
+        it4.flatMap(new LatencyLoggerT4(true));
         it4//.print();
                 .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 

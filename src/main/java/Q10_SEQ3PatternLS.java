@@ -87,7 +87,7 @@ public class Q10_SEQ3PatternLS {
 
         DataStream<Tuple3<KeyedDataPointGeneral,KeyedDataPointGeneral,KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple3());
 
-        //result.flatMap(new LatencyLoggerT3());
+        result.flatMap(new LatencyLoggerT3());
         result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 
         //System.out.println(env.getExecutionPlan());

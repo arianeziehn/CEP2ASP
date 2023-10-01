@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Run with these parameters:
  * --input ./src/main/resources/QnV_R2000070.csv
- * Approximate Iteration Optimization which presents the number of occurrence per window
+ * Approximate Iteration Optimization which presents the number of event occurrence per window
  * Note that for accurate solutions an apply function is required that sorts the input and create sequence combinations from the ordered list which can support unbounded iterations patterns
  * if combinations are requested and bounded iterations are used -> use join mappings (I)
  */
@@ -104,7 +104,7 @@ public class Q11_ITERQuery_I2 {
             }
         });
 
-        //result.flatMap(new LatencyLoggerT2_O3(true));
+        result.flatMap(new LatencyLoggerT2_O3(true));
         result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 
         /** Output example:

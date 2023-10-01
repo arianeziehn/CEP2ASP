@@ -122,7 +122,7 @@ public class Q11_ITERQuery_I1_4 {
                     }
                 });
 
-        //it4.flatMap(new LatencyLoggerT4());
+        it4.flatMap(new LatencyLoggerT4());
         it4//.print();
                 .writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
 
