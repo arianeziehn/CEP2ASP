@@ -49,29 +49,22 @@ public class Q1_SEQQuery_IntervalJoin {
 
         input.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, throughput));
 
-        DataStream<Tuple2<KeyedDataPointGeneral, Integer>> stream = input
-                .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000))
-                .map(new UDFs.MapKey());
+        DataStream<Tuple2<KeyedDataPointGeneral, Integer>> stream = input.assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000)).map(new UDFs.MapKey());
 
         DataStream<Tuple2<KeyedDataPointGeneral, Integer>> velStream = stream.filter(t -> ((Double) t.f0.getValue()) > velFilter && (t.f0 instanceof VelocityEvent));
 
         DataStream<Tuple2<KeyedDataPointGeneral, Integer>> quaStream = stream.filter(t -> ((Double) t.f0.getValue()) > quaFilter && t.f0 instanceof QuantityEvent);
 
-        DataStream<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> result = velStream.keyBy(new UDFs.getArtificalKey())
-                .intervalJoin(quaStream.keyBy(new UDFs.getArtificalKey()))
-                .between(Time.minutes(0), Time.minutes(windowSize))
-                .lowerBoundExclusive()
-                .upperBoundExclusive()
-                .process(new ProcessJoinFunction<Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
+        DataStream<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> result = velStream.keyBy(new UDFs.getArtificalKey()).intervalJoin(quaStream.keyBy(new UDFs.getArtificalKey())).between(Time.minutes(0), Time.minutes(windowSize)).lowerBoundExclusive().upperBoundExclusive().process(new ProcessJoinFunction<Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>() {
 
-                    @Override
-                    public void processElement(Tuple2<KeyedDataPointGeneral, Integer> d1, Tuple2<KeyedDataPointGeneral, Integer> d2, ProcessJoinFunction<Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>.Context context, Collector<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
-                        double distance = UDFs.checkDistance(d1.f0, d2.f0);
-                        if (distance < 10.0) {
-                            collector.collect(new Tuple2<>(d1.f0, d2.f0));
-                        }
-                    }
-                });
+            @Override
+            public void processElement(Tuple2<KeyedDataPointGeneral, Integer> d1, Tuple2<KeyedDataPointGeneral, Integer> d2, ProcessJoinFunction<Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, Integer>, Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>>.Context context, Collector<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> collector) throws Exception {
+                double distance = UDFs.checkDistance(d1.f0, d2.f0);
+                if (distance < 10.0) {
+                    collector.collect(new Tuple2<>(d1.f0, d2.f0));
+                }
+            }
+        });
 
         result.flatMap(new LatencyLoggerT2(true));
         result//.print();

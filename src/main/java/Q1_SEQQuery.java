@@ -1,7 +1,6 @@
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.functions.FlatJoinFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.streaming.api.TimeCharacteristic;
@@ -30,10 +29,10 @@ public class Q1_SEQQuery {
         }
 
         String file = parameters.get("input");
-        Integer velFilter = parameters.getInt("vel",175);
-        Integer quaFilter = parameters.getInt("qua",250);
-        Integer windowSize = parameters.getInt("wsize",15);
-        long throughput = parameters.getLong("tput",100000);
+        Integer velFilter = parameters.getInt("vel", 175);
+        Integer quaFilter = parameters.getInt("qua", 250);
+        Integer windowSize = parameters.getInt("wsize", 15);
+        long throughput = parameters.getLong("tput", 100000);
 
         String outputPath;
         if (!parameters.has("output")) {

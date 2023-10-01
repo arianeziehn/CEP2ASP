@@ -16,7 +16,7 @@ import util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
-* Run with these parameters:
+ * Run with these parameters:
  * --input ./src/main/resources/QnV.csv
  */
 
@@ -30,10 +30,10 @@ public class Q1_SEQPattern {
         }
 
         String file = parameters.get("input");
-        Integer velFilter = parameters.getInt("vel",175);
-        Integer quaFilter = parameters.getInt("qua",250);
-        Integer windowSize = parameters.getInt("wsize",15);
-        long throughput = parameters.getLong("tput",100000);
+        Integer velFilter = parameters.getInt("vel", 175);
+        Integer quaFilter = parameters.getInt("qua", 250);
+        Integer windowSize = parameters.getInt("wsize", 15);
+        long throughput = parameters.getLong("tput", 100000);
 
         String outputPath;
         if (!parameters.has("output")) {
@@ -47,7 +47,7 @@ public class Q1_SEQPattern {
 
         DataStream<KeyedDataPointGeneral> input = env.addSource(new KeyedDataPointSourceFunction(file, throughput))
                 .assignTimestampsAndWatermarks(new UDFs.ExtractTimestamp(60000)); // indicate the time field for the matching process
-               // .keyBy(new UDFs.DataKeySelector()); // if this is select only tuples with same key (i.e., same sensor id) match
+        // .keyBy(new UDFs.DataKeySelector()); // if this is select only tuples with same key (i.e., same sensor id) match
 
         input.flatMap(new ThroughputLogger<KeyedDataPointGeneral>(KeyedDataPointSourceFunction.RECORD_SIZE_IN_BYTE, throughput));
 
@@ -63,14 +63,14 @@ public class Q1_SEQPattern {
                     @Override
                     public boolean filter(QuantityEvent event2, Context<QuantityEvent> ctx) throws Exception {
                         Double quantity = (Double) event2.getValue();
-                        if (quantity > quaFilter){
+                        if (quantity > quaFilter) {
                             double distance = 0.0;
                             for (KeyedDataPointGeneral event : ctx.getEventsForPattern("first")) {
                                 distance = UDFs.checkDistance(event, event2);
                                 return distance < 10.0;
                             }
                         }
-                         return false;
+                        return false;
                     }
 
                 }
@@ -78,7 +78,7 @@ public class Q1_SEQPattern {
 
         PatternStream<KeyedDataPointGeneral> patternStream = CEP.pattern(input, pattern);
 
-        DataStream<Tuple2<KeyedDataPointGeneral,KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple2());
+        DataStream<Tuple2<KeyedDataPointGeneral, KeyedDataPointGeneral>> result = patternStream.flatSelect(new UDFs.GetResultTuple2());
 
         result.flatMap(new LatencyLoggerT2(true));
         result.writeAsText(outputPath, FileSystem.WriteMode.OVERWRITE);
