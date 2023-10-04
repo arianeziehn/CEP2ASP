@@ -334,7 +334,7 @@ public class UDFs {
             return 0;
         }
     }
-
+/*
     public static class KeySelectorNASDAQ implements KeySelector<KeyedDataPointNASDAQ, String> {
         @Override
         public String getKey(KeyedDataPointNASDAQ keyedDataPoint) throws Exception {
@@ -360,7 +360,7 @@ public class UDFs {
             return element.getTimeStampMs();
         }
     }
-
+*/
     // TimeStampAssigners
     public static class ExtractTimestamp2KeyedDataPointGeneralLongInt implements AssignerWithPeriodicWatermarks<Tuple4<KeyedDataPointGeneral, KeyedDataPointGeneral, Long, Integer>> {
         private static final long serialVersionUID = 1L;
