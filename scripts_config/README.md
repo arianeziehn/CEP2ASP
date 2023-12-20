@@ -12,8 +12,8 @@ At the top of each script, you find a set of variables (i.e., paths) that need t
 | Q3    |                              |                |             |
 | Q4    |                              |                |             |
 | Q5    |          NOT<sub>1           |                |             |
-| Q6    |                              |   ITER<sub>1   |             |
-| Q7    |          ITER<sub>1          |   ITER<sub>1   |             |
+| Q6    |                              |   ITER<sub>2   |             |
+| Q7    |          ITER<sub>1          |   ITER<sub>3   |             |
 | Q8    |                              |                |             |
 | Q9    |                              |  SEQ<sub>2-6   |             |
 | Q10   |                              |                | SEQ<sub>7   |

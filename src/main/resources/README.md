@@ -1,6 +1,6 @@
 # Resources: Data Excerpts  
 
-We use two real-world datasets for our evaluation:
+We use two real-world datasets for our evaluation, QnV-Data und AirQuality-Data. Below we introduce both data sources. All data samples used are available [here](https://tubcloud.tu-berlin.de/s/myMHrc5Hi6MtSMa).
 
 ## QnV-Data 
 
@@ -17,8 +17,8 @@ speed, i.e., velocity (𝑉), for one minute on a road segment.
 R2000070,1543622400000,67.27777777777777,8.0
 ```
 ### Source
-The data is publicly available on [𝑚𝐶𝐿𝑂𝑈𝐷](https://www.mcloud.de/web/guest/suche/-/results/filter/latest/provider%3AHessen+Mobil+-+Stra%C3%9Fen-+und+Verkehrsmanagement/0/detail/_mcloudde_mdmgeschwindigkeitsdatenhessen) 
-We provide two csv files with one sensor each and one sample of the QnV-Data stream with multiple sensors:
+The data was publicly available on 𝑚𝐶𝐿𝑂𝑈𝐷, where we extracted various samples. The data sets used for our experiments are available on the [TUBCloud](https://tubcloud.tu-berlin.de/s/myMHrc5Hi6MtSMa)
+In this repository, we provide two small csv files with one sensor each and one sample of the QnV-Data stream with multiple sensors:
 
 - (1) R2000070 (QnV_R2000070)
 - (2) R2000073 (QnV_R2000073)
@@ -41,4 +41,4 @@ We provide two csv files, one for each of the sensors:
 - (1) 𝑆𝐷𝑆011 (luftdaten_11245, including headers)
 - (2) 𝐷𝐻𝑇22 (luftdaten_11246, including headers)
 
-Note: This folder only contains small samples of the data. 
+Note: This folder only contains small samples of the data, please check [TUBCloud](https://tubcloud.tu-berlin.de/s/myMHrc5Hi6MtSMa) for the large samples used in our experiments. 

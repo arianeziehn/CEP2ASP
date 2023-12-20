@@ -29,7 +29,7 @@ public class Q1_SEQPattern {
             throw new Exception("Input Data is not specified");
         }
 
-        String file = parameters.get("input");
+        String file = parameters.get("input"); // --input
         Integer velFilter = parameters.getInt("vel", 175);
         Integer quaFilter = parameters.getInt("qua", 250);
         Integer windowSize = parameters.getInt("wsize", 15);
