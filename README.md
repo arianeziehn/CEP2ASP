@@ -2,7 +2,6 @@
 
 This repository provides the query catalog of Complex Event Processing (CEP) patterns and their respective Analytical Stream Processing (ASP) queries, translated using our operator mapping approach. 
 The provided queries are written using Apache Flinks Streaming API and its CEP library. 
-The latest version can be found in our [Github Repository](https://github.com/arianeziehn/CEP2ASP).  
 
 ## Repository Structure
 - **scripts_configs**: This folder contains a script for each experiment, a flink-conf.yaml with our settings, and a README.md with details about our evaluation, e.g., how we define maximal maintainable throughput or a summary table that indicates which pattern was used in which experiment. 
